@@ -24,6 +24,8 @@ var ErrNotFound = Error("not found")
 // ErrInvalidArgument is returned when an invalid argument is provided.
 var ErrInvalidArgument = Error("invalid argument")
 
-// ErrArtificialError is returned when an error has been artificially created
-// for testing purposes.
-var ErrArtificialError = Error("artificial error")
+// ErrAlreadyStarted is returned when a service is already started.
+var ErrAlreadyStarted = Error("already started")
+
+// ErrNotStarted is returned when a service is not started.
+var ErrNotStarted = Error("not started")

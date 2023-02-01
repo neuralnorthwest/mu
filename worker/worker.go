@@ -3,6 +3,7 @@ package worker
 import (
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/neuralnorthwest/mu/logging"
 	"github.com/neuralnorthwest/mu/status"
@@ -36,6 +37,8 @@ type Group interface {
 
 // group is a group of workers.
 type group struct {
+	// lock is the lock for the worker group.
+	lock sync.Mutex
 	// ctx is the context.
 	ctx context.Context
 	// workers is a map of workers.
@@ -59,6 +62,8 @@ func NewGroup() Group {
 // worker group is started. If the group has already been started, the worker
 // will be started immediately.
 func (g *group) Add(name string, worker Worker) error {
+	g.lock.Lock()
+	defer g.lock.Unlock()
 	if _, ok := g.workers[name]; ok {
 		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
 	}
@@ -82,6 +87,11 @@ func (g *group) Run(ctx context.Context, logger logging.Logger) error {
 // worker group. This will not block. To wait for the workers to stop, call
 // Wait after canceling the context.
 func (g *group) Start(ctx context.Context, logger logging.Logger) error {
+	g.lock.Lock()
+	defer g.lock.Unlock()
+	if g.started {
+		return status.ErrAlreadyStarted
+	}
 	g.ctx = ctx
 	g.eg, g.ctx = errgroup.WithContext(ctx)
 	g.started = true
@@ -96,6 +106,12 @@ func (g *group) Start(ctx context.Context, logger logging.Logger) error {
 
 // Wait waits for the worker group to stop.
 func (g *group) Wait() error {
+	g.lock.Lock()
+	if !g.started {
+		g.lock.Unlock()
+		return status.ErrNotStarted
+	}
+	g.lock.Unlock()
 	return g.eg.Wait()
 }
 
