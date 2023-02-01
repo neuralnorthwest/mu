@@ -23,3 +23,7 @@ var ErrNotFound = Error("not found")
 
 // ErrInvalidArgument is returned when an invalid argument is provided.
 var ErrInvalidArgument = Error("invalid argument")
+
+// ErrArtificialError is returned when an error has been artificially created
+// for testing purposes.
+var ErrArtificialError = Error("artificial error")

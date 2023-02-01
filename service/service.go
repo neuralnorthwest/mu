@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"os"
 
 	"github.com/neuralnorthwest/mu/config"
 	"github.com/neuralnorthwest/mu/logging"
@@ -25,6 +26,10 @@ type Service struct {
 	config config.Config
 	// mockMode is true if the service is in mock mode.
 	mockMode bool
+	// newLogger is a func that returns a new logger.
+	newLogger func() (logging.Logger, error)
+	// sigChan is the channel for signals.
+	sigChan chan os.Signal
 }
 
 // New returns a new service.
@@ -38,19 +43,21 @@ func New(name string, opts ...Option) (*Service, error) {
 		cancel:   cancel,
 		config:   config.New(),
 		mockMode: false,
+		newLogger: func() (logging.Logger, error) {
+			return logging.New()
+		},
+		sigChan: make(chan os.Signal, 1),
 	}
 	for _, opt := range opts {
 		if err := opt(s); err != nil {
 			return nil, err
 		}
 	}
-	if s.logger == nil {
-		logger, err := logging.New()
-		if err != nil {
-			return nil, err
-		}
-		s.logger = logger
+	logger, err := s.newLogger()
+	if err != nil {
+		return nil, err
 	}
+	s.logger = logger
 	return s, nil
 }
 

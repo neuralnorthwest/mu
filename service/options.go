@@ -28,10 +28,10 @@ func WithMockMode() Option {
 	}
 }
 
-// WithLogger returns an option that sets the logger of the service.
-func WithLogger(logger logging.Logger) Option {
+// WithLogger returns an option that sets the func used to create a new logger.
+func WithLogger(newLogger func() (logging.Logger, error)) Option {
 	return func(s *Service) error {
-		s.logger = logger
+		s.newLogger = newLogger
 		return nil
 	}
 }

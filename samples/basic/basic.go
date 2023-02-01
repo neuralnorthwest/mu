@@ -11,6 +11,25 @@ import (
 )
 
 // Demonstrates basic usage of the mu framework.
+//
+//  - Define BasicApp, which embeds an instance of service.Service
+//  - Define newBasicApp, which initializes the application:
+//    - Create a new service.Service
+//    - Register the configuration setup hook `configSetup`
+//    - Register the setup hook `setup`
+//    - Register the cleanup hook `cleanup`
+//  - Define configSetup, which sets up the configuration:
+//    - Create a new string configuration variable `MESSAGE`
+//  - Define setup, which sets up the application:
+//    - Create a new HTTP server
+//    - Register a handler for the `/hello` endpoint
+//    - Add the HTTP server to the worker group
+//  - Define cleanup, which cleans up the application:
+//    - Nothing to do here
+//  - Define main, which runs the application:
+//    - Create a new basic application using newBasicApp
+//    - Call Main on the application
+//    - If an error occurs, print it to stderr and exit with a non-zero status
 
 // BasicApp is a basic application.
 type BasicApp struct {
