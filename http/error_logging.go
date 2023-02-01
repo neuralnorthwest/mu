@@ -6,8 +6,9 @@ import (
 	"github.com/neuralnorthwest/mu/logging"
 )
 
-// statusCodeInterceptor is an HTTP middleware that intercepts the status code.
-type statusCodeInterceptor struct {
+// errorLoggingInterceptor is a ht.ResponseWriter that intercepts the status
+// code and body of the response.
+type errorLoggingInterceptor struct {
 	ht.ResponseWriter
 	statusCode int
 	path       string
@@ -15,13 +16,13 @@ type statusCodeInterceptor struct {
 }
 
 // WriteHeader intercepts the status code.
-func (i *statusCodeInterceptor) WriteHeader(statusCode int) {
+func (i *errorLoggingInterceptor) WriteHeader(statusCode int) {
 	i.statusCode = statusCode
 	i.ResponseWriter.WriteHeader(statusCode)
 }
 
 // Write intercepts the body.
-func (i *statusCodeInterceptor) Write(body []byte) (int, error) {
+func (i *errorLoggingInterceptor) Write(body []byte) (int, error) {
 	// If the status code is >= 500, then the body is an error message.
 	// Capture the first 512 bytes of the body.
 	if i.statusCode >= 500 {
@@ -38,7 +39,7 @@ func (i *statusCodeInterceptor) Write(body []byte) (int, error) {
 func ErrorLoggingMiddleware(logger logging.Logger) Middleware {
 	return func(next ht.Handler) ht.Handler {
 		return ht.HandlerFunc(func(w ht.ResponseWriter, r *ht.Request) {
-			i := &statusCodeInterceptor{
+			i := &errorLoggingInterceptor{
 				ResponseWriter: w,
 				path:           r.URL.Path,
 			}
