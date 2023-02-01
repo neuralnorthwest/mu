@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/neuralnorthwest/mu/logging"
 	"github.com/neuralnorthwest/mu/status"
 	"golang.org/x/mod/semver"
 )
@@ -23,6 +24,14 @@ func WithVersion(version string) Option {
 func WithMockMode() Option {
 	return func(s *Service) error {
 		s.mockMode = true
+		return nil
+	}
+}
+
+// WithLogger returns an option that sets the logger of the service.
+func WithLogger(logger logging.Logger) Option {
+	return func(s *Service) error {
+		s.logger = logger
 		return nil
 	}
 }

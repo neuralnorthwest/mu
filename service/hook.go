@@ -1,30 +1,33 @@
 package service
 
-import "github.com/neuralnorthwest/mu/config"
+import (
+	"github.com/neuralnorthwest/mu/config"
+	"github.com/neuralnorthwest/mu/worker"
+)
 
-// SetupConfigFunc is a function that sets up a service configuration.
-type SetupConfigFunc func(c config.Config) error
+// ConfigSetupFunc is a function that sets up a service configuration.
+type ConfigSetupFunc func(c config.Config) error
 
 // SetupFunc is a function that sets up a service.
-type SetupFunc func() error
+type SetupFunc func(workerGroup worker.Group) error
 
 // CleanupFunc is a function that cleans up a service.
 type CleanupFunc func() error
 
 type hooks interface {
-	RegisterSetupConfig(f SetupConfigFunc)
+	RegisterConfigSetup(f ConfigSetupFunc)
 	RegisterSetup(f SetupFunc)
 	RegisterCleanup(f CleanupFunc)
 
-	invokeSetupConfig(c config.Config) error
-	invokeSetup() error
+	invokeConfigSetup(c config.Config) error
+	invokeSetup(workerGroup worker.Group) error
 	invokeCleanup() error
 }
 
 // hookstruct holds the hookstruct for a service.
 type hookstruct struct {
-	// setupConfig is the setup configuration hook.
-	setupConfig SetupConfigFunc
+	// configSetup is the setup configuration hook.
+	configSetup ConfigSetupFunc
 	// setup is the setup hook.
 	setup SetupFunc
 	// cleanup is the cleanup hook.
@@ -34,8 +37,8 @@ type hookstruct struct {
 var _ hooks = (*hookstruct)(nil)
 
 // RegisterSetupConfig registers a setup configuration hook.
-func (h *hookstruct) RegisterSetupConfig(f SetupConfigFunc) {
-	h.setupConfig = f
+func (h *hookstruct) RegisterConfigSetup(f ConfigSetupFunc) {
+	h.configSetup = f
 }
 
 // RegisterSetup registers a setup hook.
@@ -48,18 +51,18 @@ func (h *hookstruct) RegisterCleanup(f CleanupFunc) {
 	h.cleanup = f
 }
 
-// invokeSetupConfig invokes the setup configuration hook.
-func (h *hookstruct) invokeSetupConfig(c config.Config) error {
-	if h.setupConfig != nil {
-		return h.setupConfig(c)
+// invokeConfigSetup invokes the setup configuration hook.
+func (h *hookstruct) invokeConfigSetup(c config.Config) error {
+	if h.configSetup != nil {
+		return h.configSetup(c)
 	}
 	return nil
 }
 
 // invokeSetup invokes the setup hook.
-func (h *hookstruct) invokeSetup() error {
+func (h *hookstruct) invokeSetup(workerGroup worker.Group) error {
 	if h.setup != nil {
-		return h.setup()
+		return h.setup(workerGroup)
 	}
 	return nil
 }

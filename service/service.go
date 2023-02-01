@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/neuralnorthwest/mu/config"
+	"github.com/neuralnorthwest/mu/logging"
 )
 
 // Service represents a service.
@@ -14,6 +15,8 @@ type Service struct {
 	version string
 	// hooks are the hooks for the service.
 	hooks
+	// logger is the logger for the service.
+	logger logging.Logger
 	// ctx holds the context for the service.
 	ctx context.Context
 	// cancel cancels the context for the service.
