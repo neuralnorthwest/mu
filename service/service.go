@@ -29,13 +29,27 @@ type Service struct {
 
 // New returns a new service.
 func New(name string, opts ...Option) (*Service, error) {
+	ctx, cancel := context.WithCancel(context.Background())
 	s := &Service{
-		name: name,
+		name:     name,
+		version:  "v0.0.0",
+		hooks:    &hookstruct{},
+		ctx:      ctx,
+		cancel:   cancel,
+		config:   config.New(),
+		mockMode: false,
 	}
 	for _, opt := range opts {
 		if err := opt(s); err != nil {
 			return nil, err
 		}
+	}
+	if s.logger == nil {
+		logger, err := logging.New()
+		if err != nil {
+			return nil, err
+		}
+		s.logger = logger
 	}
 	return s, nil
 }
@@ -48,6 +62,11 @@ func (s *Service) Name() string {
 // Version returns the version of the service.
 func (s *Service) Version() string {
 	return s.version
+}
+
+// Logger returns the logger for the service.
+func (s *Service) Logger() logging.Logger {
+	return s.logger
 }
 
 // Context returns the context for the service.

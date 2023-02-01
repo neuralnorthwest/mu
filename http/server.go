@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	ht "net/http"
 	"time"
 
@@ -10,8 +11,6 @@ import (
 
 // Server is an HTTP server.
 type Server struct {
-	// addr is the address to listen on.
-	addr string
 	// server is the underlying HTTP server.
 	server *ht.Server
 	// mux is the HTTP request multiplexer.
@@ -30,7 +29,7 @@ type ServerOption func(*Server) error
 // WithAddress returns an option that sets the address to listen on.
 func WithAddress(addr string) ServerOption {
 	return func(s *Server) error {
-		s.addr = addr
+		s.server.Addr = addr
 		return nil
 	}
 }
@@ -49,6 +48,7 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 	s := &Server{
 		server: &ht.Server{
 			Handler: mux,
+			Addr:    ":8080",
 		},
 		mux:             mux,
 		shutdownTimeout: 5 * time.Second,
@@ -90,9 +90,11 @@ func (s *Server) Run(ctx context.Context, logger logging.Logger) error {
 		s.logger.Debugw("shutting down HTTP server")
 		shutdown <- s.server.Shutdown(ctx)
 	}()
-	s.logger.Debugw("starting HTTP server", "addr", s.addr)
+	s.logger.Debugw("starting HTTP server", "addr", s.server.Addr)
 	if err := s.server.ListenAndServe(); err != nil {
-		s.logger.Errorw("HTTP server error", "err", err)
+		if !errors.Is(err, ht.ErrServerClosed) {
+			s.logger.Errorw("HTTP server error", "err", err)
+		}
 		return err
 	}
 	err := <-shutdown
