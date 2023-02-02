@@ -1,3 +1,7 @@
+# v0.1.3
+
+* Starting documentation
+
 # v0.1.2
 
 * README.md updates

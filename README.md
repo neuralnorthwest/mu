@@ -4,6 +4,7 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/neuralnorthwest/mu?style=plastic)
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/neuralnorthwest/mu/cicd.yaml?branch=develop&style=plastic)
 ![GitHub search hit counter](https://img.shields.io/github/search/neuralnorthwest/mu/goto?style=plastic)
+![Status](https://img.shields.io/badge/status-in%20development-orange)
 
 Mu is a microservice framework written in Go. Built on ideas and learnings from
 real-world microservice development, Mu is designed to be simple, fast, and
@@ -74,3 +75,33 @@ func main() {
     perform any cleanup tasks you need, such as closing database connections,
     before the microservice exits. Mu automatically handles SIGTERM and SIGINT
     correctly, and will wait for all workers to finish before exiting.
+
+## Developer quick start
+
+If you want work on Mu, you can use the following commands to get started:
+
+```bash
+git clone https://github.com/neuralnorthwest/mu.git
+cd mu
+make setup-dev
+```
+
+### Contributing
+
+To contribute, fork the repository and submit a pull request.
+
+The main branch for development is `develop`. If you intend to submit PRs,
+base them off of `develop`:
+
+```bash
+git checkout -b my-feature develop
+git push -u origin my-feature
+```
+
+If you find yourself frequently contributing to Mu, you can apply to become a
+member of the `contributors` team. This will give you write access to the
+repository, and allow you to create branches directly on the main repository
+instead of your fork.
+
+To apply, open an issue in the repository and ask to be added to the
+`contributors` team.
