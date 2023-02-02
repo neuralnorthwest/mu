@@ -121,15 +121,15 @@ func Test_run_Hooks(t *testing.T) {
 			configSetupWasInvoked := false
 			setupWasInvoked := false
 			cleanupWasInvoked := false
-			svc.RegisterConfigSetup(func(config.Config) error {
+			svc.ConfigSetup(func(config.Config) error {
 				configSetupWasInvoked = true
 				return testCase.configSetupErr
 			})
-			svc.RegisterSetup(func(worker.Group) error {
+			svc.Setup(func(worker.Group) error {
 				setupWasInvoked = true
 				return testCase.setupErr
 			})
-			svc.RegisterCleanup(func() error {
+			svc.Cleanup(func() error {
 				cleanupWasInvoked = true
 				return testCase.cleanupErr
 			})
@@ -223,7 +223,7 @@ func Test_run_Workers(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New returned an error: %v", err)
 			}
-			svc.RegisterSetup(func(group worker.Group) error {
+			svc.Setup(func(group worker.Group) error {
 				for i, w := range testCase.workers {
 					if err := group.Add(fmt.Sprintf("worker-%d", i), w); err != nil {
 						return err
@@ -283,7 +283,7 @@ func Test_run_interrupt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New returned an error: %v", err)
 	}
-	svc.RegisterSetup(func(group worker.Group) error {
+	svc.Setup(func(group worker.Group) error {
 		return group.Add("wait-worker", newTestWaitWorker(t))
 	})
 	svc.sigChan <- syscall.SIGINT

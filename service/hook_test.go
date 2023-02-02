@@ -41,7 +41,7 @@ func Test_hooks_InvokeConfigSetup(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.RegisterConfigSetup(func(c config.Config) error {
+	h.ConfigSetup(func(c config.Config) error {
 		wasInvoked = true
 		return nil
 	})
@@ -58,7 +58,7 @@ func Test_hooks_InvokeSetup(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.RegisterSetup(func(workerGroup worker.Group) error {
+	h.Setup(func(workerGroup worker.Group) error {
 		wasInvoked = true
 		return nil
 	})
@@ -75,7 +75,7 @@ func Test_hooks_InvokeCleanup(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.RegisterCleanup(func() error {
+	h.Cleanup(func() error {
 		wasInvoked = true
 		return nil
 	})
