@@ -63,7 +63,7 @@ jobs:
       - uses: neuralnorthwest/actions/version-go@main
         id: detect-version
       - name: Verify Version
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
         run: |
           if git tag -l | grep -q ${{ steps.detect-version.outputs.version }}; then
             echo "ERROR: Version ${{ steps.detect-version.outputs.version }} already exists"
