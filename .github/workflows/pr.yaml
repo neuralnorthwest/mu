@@ -44,6 +44,13 @@ jobs:
       - uses: neuralnorthwest/actions/lint-go@main
         with:
           no-cache: true
+  check-license:
+    name: Check License
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          scripts/check-license.sh
   detect-version:
     name: Detect Version
     outputs:
@@ -65,7 +72,11 @@ jobs:
   release:
     name: Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [test, lint, detect-version]
+    needs:
+      - test
+      - lint
+      - check-license
+      - detect-version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
