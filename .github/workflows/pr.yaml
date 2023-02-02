@@ -1,0 +1,87 @@
+# Copyright 2023 Scott M. Long
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# 	http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: PR Checks
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - '**'
+    paths:
+      - '**'
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: neuralnorthwest/actions/test-go@main
+        with:
+          no-cache: true
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: neuralnorthwest/actions/lint-go@main
+        with:
+          no-cache: true
+  check-license:
+    name: Check License
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          scripts/check-license.sh
+  detect-version:
+    name: Detect Version
+    outputs:
+      version: ${{ steps.detect-version.outputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: neuralnorthwest/actions/version-go@main
+        id: detect-version
+      - name: Verify Version
+        if: github.event_name == 'pull_request' && github.event.pull_request.base.ref == 'main'
+        run: |
+          if git tag -l | grep -q ${{ steps.detect-version.outputs.version }}; then
+            echo "ERROR: Version ${{ steps.detect-version.outputs.version }} already exists"
+            exit 1
+          fi
+  release:
+    name: Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - test
+      - lint
+      - check-license
+      - detect-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: |
+          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          gh release create "v${{ needs.detect-version.outputs.version }}" -t "mu@v${{ needs.detect-version.outputs.version }}" -n "${{ needs.detect-version.outputs.version }}"
