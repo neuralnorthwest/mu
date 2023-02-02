@@ -1,0 +1,62 @@
+name: PR Checks
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - '**'
+    paths:
+      - '**'
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: neuralnorthwest/actions/test-go@main
+        with:
+          no-cache: true
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: neuralnorthwest/actions/lint-go@main
+        with:
+          no-cache: true
+  detect-version:
+    name: Detect Version
+    outputs:
+      version: ${{ steps.detect-version.outputs.version }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: neuralnorthwest/actions/version-go@main
+        id: detect-version
+      - name: Verify Version
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          if git tag -l | grep -q ${{ steps.detect-version.outputs.version }}; then
+            echo "ERROR: Version ${{ steps.detect-version.outputs.version }} already exists"
+            exit 1
+          fi
+  release:
+    name: Release
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test, lint, detect-version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: |
+          gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+          gh release create "v${{ needs.detect-version.outputs.version }}" -t "mu@v${{ needs.detect-version.outputs.version }}" -n "${{ needs.detect-version.outputs.version }}"
