@@ -12,16 +12,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Targets:
+#
+# check: runs all pre-commit checks
+# setup-dev: sets up the development environment
+# setup-git-hooks: sets up the git hooks
+# setup-venv: sets up all virtual environments
+# check-license: checks the license headers
+# lint-go: runs the go linter
+# test-go: runs the go tests
+
 .PHONY: check
 check: check-license lint-go test-go
 
+.PHONY: setup-dev
+setup-dev: setup-git-hooks setup-venv
+
 .PHONY: setup-git-hooks
 setup-git-hooks:
-	@cp scripts/git-hook/pre-commit .git/hooks/pre-commit
+	@cp scripts/git-hook/* .git/hooks/
+
+.PHONY: setup-venv
+setup-venv:
+	@./scripts/setup-venv.sh
 
 .PHONY: check-license
 check-license:
-	@./scripts/check-license.sh > /dev/null 2>&1
+	@./scripts/check-license.sh > /dev/null
 	@echo "License check passed"
 
 .PHONY: lint-go
