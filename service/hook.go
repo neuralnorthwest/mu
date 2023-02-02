@@ -29,9 +29,9 @@ type SetupFunc func(workerGroup worker.Group) error
 type CleanupFunc func() error
 
 type hooks interface {
-	RegisterConfigSetup(f ConfigSetupFunc)
-	RegisterSetup(f SetupFunc)
-	RegisterCleanup(f CleanupFunc)
+	ConfigSetup(f ConfigSetupFunc)
+	Setup(f SetupFunc)
+	Cleanup(f CleanupFunc)
 
 	invokeConfigSetup(c config.Config) error
 	invokeSetup(workerGroup worker.Group) error
@@ -50,18 +50,18 @@ type hookstruct struct {
 
 var _ hooks = (*hookstruct)(nil)
 
-// RegisterSetupConfig registers a setup configuration hook.
-func (h *hookstruct) RegisterConfigSetup(f ConfigSetupFunc) {
+// SetupConfig registers a setup configuration hook.
+func (h *hookstruct) ConfigSetup(f ConfigSetupFunc) {
 	h.configSetup = f
 }
 
-// RegisterSetup registers a setup hook.
-func (h *hookstruct) RegisterSetup(f SetupFunc) {
+// Setup registers a setup hook.
+func (h *hookstruct) Setup(f SetupFunc) {
 	h.setup = f
 }
 
-// RegisterCleanup registers a cleanup hook.
-func (h *hookstruct) RegisterCleanup(f CleanupFunc) {
+// Cleanup registers a cleanup hook.
+func (h *hookstruct) Cleanup(f CleanupFunc) {
 	h.cleanup = f
 }
 

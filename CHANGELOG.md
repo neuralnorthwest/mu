@@ -1,3 +1,7 @@
+# v0.1.2
+
+* README.md updates
+
 # v0.1.1
 
 * Rename pr.yaml workflow to cicd.yaml

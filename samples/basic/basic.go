@@ -59,9 +59,9 @@ func newBasicApp() (*BasicApp, error) {
 	app := &BasicApp{
 		Service: svc,
 	}
-	app.RegisterConfigSetup(app.configSetup)
-	app.RegisterSetup(app.setup)
-	app.RegisterCleanup(app.cleanup)
+	app.ConfigSetup(app.configSetup)
+	app.Setup(app.setup)
+	app.Cleanup(app.cleanup)
 	return app, nil
 }
 
