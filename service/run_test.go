@@ -211,7 +211,9 @@ func Test_run_Workers(t *testing.T) {
 			}
 			svc.RegisterSetup(func(group worker.Group) error {
 				for i, w := range testCase.workers {
-					group.Add(fmt.Sprintf("worker-%d", i), w)
+					if err := group.Add(fmt.Sprintf("worker-%d", i), w); err != nil {
+						return err
+					}
 				}
 				return nil
 			})
@@ -268,8 +270,7 @@ func Test_run_interrupt(t *testing.T) {
 		t.Fatalf("New returned an error: %v", err)
 	}
 	svc.RegisterSetup(func(group worker.Group) error {
-		group.Add("wait-worker", newTestWaitWorker(t))
-		return nil
+		return group.Add("wait-worker", newTestWaitWorker(t))
 	})
 	svc.sigChan <- syscall.SIGINT
 	err = svc.Run()

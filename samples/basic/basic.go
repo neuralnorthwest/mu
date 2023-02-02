@@ -63,10 +63,9 @@ func (a *BasicApp) setup(workerGroup worker.Group) error {
 		return err
 	}
 	httpServer.HandleFunc("/hello", func(w ht.ResponseWriter, r *ht.Request) {
-		w.Write([]byte(a.Config().String("MESSAGE")))
+		_, _ = w.Write([]byte(a.Config().String("MESSAGE")))
 	})
-	workerGroup.Add("http_server", httpServer)
-	return nil
+	return workerGroup.Add("http_server", httpServer)
 }
 
 // cleanup cleans up the application.

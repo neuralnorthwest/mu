@@ -28,8 +28,7 @@ func Test_Main(t *testing.T) {
 		t.Fatalf("New returned an error: %v", err)
 	}
 	svc.RegisterSetup(func(group worker.Group) error {
-		group.Add("worker", &testTraceWorker{ran: &workerRan})
-		return nil
+		return group.Add("worker", &testTraceWorker{ran: &workerRan})
 	})
 	if err := svc.Main(); err != nil {
 		t.Fatalf("Main returned an error: %v", err)
