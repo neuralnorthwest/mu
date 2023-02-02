@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-name: PR Checks
+name: CI/CD
 on:
   pull_request:
     types:
@@ -84,4 +84,4 @@ jobs:
           fetch-depth: 0
       - run: |
           gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
-          gh release create "v${{ needs.detect-version.outputs.version }}" -t "mu@v${{ needs.detect-version.outputs.version }}" -n "${{ needs.detect-version.outputs.version }}"
+          gh release create "${{ needs.detect-version.outputs.version }}" -t "mu@${{ needs.detect-version.outputs.version }}" -n "${{ needs.detect-version.outputs.version }}"
