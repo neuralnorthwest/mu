@@ -1,6 +1,6 @@
 # v0.1.2
 
-TODO: Write a changelog
+* README.md updates
 
 # v0.1.1
 
