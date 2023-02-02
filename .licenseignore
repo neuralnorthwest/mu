@@ -1,0 +1,6 @@
+./CHANGELOG.md
+./go.sum
+./.licenseignore
+./logging/mock/logger.go
+./README.md
+./service/README.md
