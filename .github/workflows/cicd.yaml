@@ -84,4 +84,4 @@ jobs:
           fetch-depth: 0
       - run: |
           gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
-          gh release create "${{ needs.detect-version.outputs.version }}" -t "mu@${{ needs.detect-version.outputs.version }}" -n "${{ needs.detect-version.outputs.version }}"
+          make release
