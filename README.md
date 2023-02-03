@@ -4,7 +4,8 @@
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/neuralnorthwest/mu?style=plastic)
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/neuralnorthwest/mu/cicd.yaml?branch=develop&style=plastic)
 ![GitHub search hit counter](https://img.shields.io/github/search/neuralnorthwest/mu/goto?style=plastic)
-![Status](https://img.shields.io/badge/status-in%20development-orange)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/neuralnorthwest/mu?style=plastic)
+![Status](https://img.shields.io/badge/status-in%20development-orange?style=plastic)
 
 Mu is a microservice framework written in Go. Built on ideas and learnings from
 real-world microservice development, Mu is designed to be simple, fast, and

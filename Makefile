@@ -26,7 +26,7 @@
 check: check-license lint-go test-go
 
 .PHONY: setup-dev
-setup-dev: setup-git-hooks setup-venv
+setup-dev: setup-git-hooks setup-venv setup-gh
 
 .PHONY: setup-git-hooks
 setup-git-hooks:
@@ -35,6 +35,10 @@ setup-git-hooks:
 .PHONY: setup-venv
 setup-venv:
 	@./scripts/setup-venv.sh
+
+.PHONY: setup-gh
+setup-gh:
+	@./scripts/setup-gh.sh
 
 .PHONY: check-license
 check-license:
@@ -50,3 +54,7 @@ lint-go:
 test-go:
 	@go test -v -parallel 4 ./... > /dev/null 2>&1
 	@echo "Go tests passed"
+
+.PHONY: release
+release:
+	@./scripts/release.sh
