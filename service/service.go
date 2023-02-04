@@ -29,7 +29,7 @@ type Service struct {
 	// version is the version of the service.
 	version string
 	// hooks are the hooks for the service.
-	hooks
+	Hooks
 	// logger is the logger for the service.
 	logger logging.Logger
 	// ctx holds the context for the service.
@@ -44,6 +44,9 @@ type Service struct {
 	newLogger func() (logging.Logger, error)
 	// sigChan is the channel for signals.
 	sigChan chan os.Signal
+	// stopImmediately is true if the service should stop immediately. This is
+	// used for testing.
+	stopImmediately bool
 }
 
 // New returns a new service.
@@ -52,7 +55,7 @@ func New(name string, opts ...Option) (*Service, error) {
 	s := &Service{
 		name:     name,
 		version:  "v0.0.0",
-		hooks:    &hookstruct{},
+		Hooks:    &hookstruct{},
 		ctx:      ctx,
 		cancel:   cancel,
 		config:   config.New(),

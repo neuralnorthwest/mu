@@ -4,3 +4,4 @@
 ./logging/mock/logger.go
 ./README.md
 ./service/README.md
+./config/README.md

@@ -44,7 +44,4 @@
 // statement (unless it is being called from an infinite loop). This avoids
 // making assumptions about the behavior of the handler (in particular, whether
 // it returns or not).
-//
-// The bug handler might be called from multiple goroutines, so it must be
-// thread-safe.
 package bug

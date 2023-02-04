@@ -37,7 +37,18 @@ func (s *Service) Run() error {
 	if err := s.invokeSetup(workerGroup); err != nil {
 		return err
 	}
+	if httpServer, err := s.invokeSetupHTTP(); err != nil {
+		return err
+	} else if httpServer != nil {
+		if err := workerGroup.Add("http_server", httpServer); err != nil {
+			return err
+		}
+	}
 	s.startInterruptListener(s.ctx, s.logger, s.cancel)
+	if s.stopImmediately {
+		s.logger.Info("stopping immediately")
+		s.cancel()
+	}
 	werr := workerGroup.Run(s.ctx, s.logger)
 	cerr := s.invokeCleanup()
 	if werr != nil {

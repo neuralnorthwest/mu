@@ -18,9 +18,11 @@
 # setup-dev: sets up the development environment
 # setup-git-hooks: sets up the git hooks
 # setup-venv: sets up all virtual environments
+# setup-gh: sets up the github cli
 # check-license: checks the license headers
 # lint-go: runs the go linter
 # test-go: runs the go tests
+# release: releases the project (called from CI)
 
 .PHONY: check
 check: check-license lint-go test-go

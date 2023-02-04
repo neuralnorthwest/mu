@@ -108,8 +108,9 @@ func (s *Server) Run(ctx context.Context, logger logging.Logger) error {
 	if err := s.server.ListenAndServe(); err != nil {
 		if !errors.Is(err, ht.ErrServerClosed) {
 			s.logger.Errorw("HTTP server error", "err", err)
+			return err
 		}
-		return err
+		return nil
 	}
 	err := <-shutdown
 	if err != nil {
