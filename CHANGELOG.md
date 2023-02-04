@@ -1,3 +1,7 @@
+## v0.1.5
+
+* Add SetupHTTP hook.
+
 ## v0.1.4
 
 * Improve release process

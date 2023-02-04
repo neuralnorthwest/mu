@@ -22,4 +22,10 @@ if ! version=$(grep -oP '(?<=const [vV]ersion = ")[^"]+' version.go); then
     exit 1
 fi
 
+# Check that the version in docs/source/conf.py matches.
+if ! grep -q "release = '$version'" docs/source/conf.py; then
+    echo "Version number in docs/source/conf.py does not match version.go"
+    exit 1
+fi
+
 echo "$version"

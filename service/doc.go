@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mu
-
-const version = "v0.1.5"
-const _ = version
-
-// Version returns the version of mu.
-func Version() string {
-	return version
-}
+// Package service implements the Service type. This type is the core of the
+// Mu framework.
+//
+// Service is based on the concept of hooks and workers. Hooks are functions
+// that are invoked at various points in the service lifecycle. Workers are
+// goroutines that are started and stopped as part of the service lifecycle.
+//
+// Service also contains some core functionality that is useful for most
+// services. This includes logging, configuration, and signal handling.
+package service

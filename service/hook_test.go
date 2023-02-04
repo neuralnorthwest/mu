@@ -18,6 +18,8 @@ import (
 	"testing"
 
 	"github.com/neuralnorthwest/mu/config"
+	"github.com/neuralnorthwest/mu/http"
+	"github.com/neuralnorthwest/mu/status"
 	"github.com/neuralnorthwest/mu/worker"
 )
 
@@ -33,6 +35,23 @@ func Test_hooks_NoHooks(t *testing.T) {
 	}
 	if err := h.invokeCleanup(); err != nil {
 		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+// Test_hooks_InvokeCleanup tests that the cleanup hook is invoked.
+func Test_hooks_InvokeCleanup(t *testing.T) {
+	t.Parallel()
+	wasInvoked := false
+	h := &hookstruct{}
+	h.Cleanup(func() error {
+		wasInvoked = true
+		return nil
+	})
+	if err := h.invokeCleanup(); err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+	if !wasInvoked {
+		t.Error("expected cleanup hook to be invoked")
 	}
 }
 
@@ -70,19 +89,53 @@ func Test_hooks_InvokeSetup(t *testing.T) {
 	}
 }
 
-// Test_hooks_InvokeCleanup tests that the cleanup hook is invoked.
-func Test_hooks_InvokeCleanup(t *testing.T) {
+// Test_hooks_InvokeSetupHTTP tests that the setup HTTP hook is invoked.
+func Test_hooks_InvokeSetupHTTP(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.Cleanup(func() error {
+	h.SetupHTTP(func(server *http.Server) error {
 		wasInvoked = true
 		return nil
 	})
-	if err := h.invokeCleanup(); err != nil {
+	var httpServer *http.Server
+	var err error
+	if httpServer, err = h.invokeSetupHTTP(); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if !wasInvoked {
-		t.Error("expected cleanup hook to be invoked")
+		t.Error("expected setup HTTP hook to be invoked")
+	}
+	if httpServer == nil {
+		t.Error("expected http server to be returned")
+	}
+}
+
+// Test_hooks_InvokeSetupHTTP_NewServerError tests that the setup HTTP hook is invoked
+// and checks the logic when we fail to create a new server.
+func Test_hooks_InvokeSetupHTTP_NewServerError(t *testing.T) {
+	t.Parallel()
+	h := &hookstruct{}
+	h.httpNewServer = func() (*http.Server, error) {
+		return nil, status.ErrInvalidArgument
+	}
+	h.SetupHTTP(func(server *http.Server) error {
+		return nil
+	})
+	if _, err := h.invokeSetupHTTP(); err == nil {
+		t.Error("expected error")
+	}
+}
+
+// Test_hooks_InvokeSetupHTTP_HookError tests that the setup HTTP hook is invoked
+// and checks the logic when the user's hook returns an error.
+func Test_hooks_InvokeSetupHTTP_HookError(t *testing.T) {
+	t.Parallel()
+	h := &hookstruct{}
+	h.SetupHTTP(func(server *http.Server) error {
+		return status.ErrInvalidArgument
+	})
+	if _, err := h.invokeSetupHTTP(); err == nil {
+		t.Error("expected error")
 	}
 }

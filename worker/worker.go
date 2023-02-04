@@ -108,8 +108,8 @@ func (g *group) Start(ctx context.Context, logger logging.Logger) error {
 	}
 	g.ctx = ctx
 	g.eg, g.ctx = errgroup.WithContext(ctx)
-	g.started = true
 	g.logger = logger
+	g.started = true
 	for name, worker := range g.workers {
 		if err := g.startWorker(name, worker); err != nil {
 			return err
