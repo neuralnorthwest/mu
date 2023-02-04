@@ -54,9 +54,13 @@ if ! notes=$(sed -n "/^## $version/,/^## /p" CHANGELOG.md | sed '$d'); then
     echo "Failed to scrape release notes from CHANGELOG.md."
     exit 1
 fi
+if grep -q "TODO" <<< "$notes"; then
+    echo "Release notes contain TODOs."
+    exit 1
+fi
 
 # Create the release.
-if ! gh release create "$version" -t "github.com/neuralnorthwest/mu@$version" -n "$notes"; then
+if ! gh release create "$version" -t "Mu $version" -n "$notes"; then
     echo "Failed to create release."
     exit 1
 fi
