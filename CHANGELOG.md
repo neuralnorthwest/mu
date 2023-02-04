@@ -1,6 +1,6 @@
 ## v0.1.5
 
-* Sphinx documentation generation
+* Add SetupHTTP hook.
 
 ## v0.1.4
 
