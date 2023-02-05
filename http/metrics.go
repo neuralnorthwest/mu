@@ -1,0 +1,80 @@
+// Copyright 2023 Scott M. Long
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// 	http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package http
+
+import (
+	"net/http"
+	ht "net/http"
+
+	"github.com/neuralnorthwest/mu/logging"
+	"github.com/neuralnorthwest/mu/metrics"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+// MetricsOptions specifies options for HTTP metrics
+type MetricsOptions struct {
+	// Path is the path to the metrics endpoint. If empty, the metrics
+	// are served at /metrics.
+	Path string
+	// RequestDurationBuckets are the buckets for the request duration
+	// histogram. If empty, the default buckets are used.
+	RequestDurationBuckets []float64
+	// RequestSizeBuckets are the buckets for the request size histogram.
+	// If empty, the default buckets are used.
+	RequestSizeBuckets []float64
+	// ResponseSizeBuckets are the buckets for the response size
+	// histogram. If empty, the default buckets are used.
+	ResponseSizeBuckets []float64
+}
+
+// WithMetrics returns a ServerOption that adds HTTP request metrics to
+// the server.
+func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions) ServerOption {
+	requestsTotal := met.NewCounter("http_requests_total", "The total number of HTTP requests.", "method", "code", "path")
+	requestsInFlight := met.NewGauge("http_requests_in_flight", "The number of HTTP requests currently in flight.", "method", "code", "path")
+	requestDurations := met.NewHistogram("http_request_duration_seconds", "The HTTP request latencies in seconds.", opts.RequestDurationBuckets, "method", "code", "path")
+	requestSizes := met.NewHistogram("http_request_size_bytes", "The HTTP request sizes in bytes.", opts.RequestSizeBuckets, "method", "code", "path")
+	responseSizes := met.NewHistogram("http_response_size_bytes", "The HTTP response sizes in bytes.", opts.ResponseSizeBuckets, "method", "code", "path")
+	timeToWriteHeader := met.NewHistogram("http_time_to_write_header", "The time to write the HTTP response header in seconds.", nil, "method", "code", "path")
+	// Create a middleware option that instruments the HTTP handlers.
+	addMiddleware := WithMiddleware(func(pattern string, next http.Handler) http.Handler {
+		pathLabel := prometheus.Labels{"path": pattern}
+		var h ht.Handler
+		h = promhttp.InstrumentHandlerCounter(metrics.PrometheusCounterVec(requestsTotal).MustCurryWith(pathLabel), next)
+		h = promhttp.InstrumentHandlerInFlight(metrics.PrometheusGaugeVec(requestsInFlight).With(pathLabel), h)
+		h = promhttp.InstrumentHandlerDuration(metrics.PrometheusHistogramVec(requestDurations).MustCurryWith(pathLabel), h)
+		h = promhttp.InstrumentHandlerRequestSize(metrics.PrometheusHistogramVec(requestSizes).MustCurryWith(pathLabel), h)
+		h = promhttp.InstrumentHandlerResponseSize(metrics.PrometheusHistogramVec(responseSizes).MustCurryWith(pathLabel), h)
+		h = promhttp.InstrumentHandlerTimeToWriteHeader(metrics.PrometheusHistogramVec(timeToWriteHeader).MustCurryWith(pathLabel), h)
+		return h
+	})
+	// Create a server option that adds the metrics handler.
+	addHandler := func(server *Server) error {
+		path := opts.Path
+		if path == "" {
+			path = "/metrics"
+		}
+		server.Handle(path, promhttp.InstrumentMetricHandler(metrics.PrometheusRegistry(met), met.Handler(logger)))
+		return nil
+	}
+	// Return a server option that adds the middleware and handler.
+	return func(server *Server) error {
+		if err := addMiddleware(server); err != nil {
+			return err
+		}
+		return addHandler(server)
+	}
+}

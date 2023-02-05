@@ -25,7 +25,6 @@ import (
 type errorLoggingInterceptor struct {
 	ht.ResponseWriter
 	statusCode int
-	path       string
 	body       []byte
 }
 
@@ -51,15 +50,14 @@ func (i *errorLoggingInterceptor) Write(body []byte) (int, error) {
 
 // ErrorLoggingMiddleware is an HTTP middleware that logs errors.
 func ErrorLoggingMiddleware(logger logging.Logger) Middleware {
-	return func(next ht.Handler) ht.Handler {
+	return func(pattern string, next ht.Handler) ht.Handler {
 		return ht.HandlerFunc(func(w ht.ResponseWriter, r *ht.Request) {
 			i := &errorLoggingInterceptor{
 				ResponseWriter: w,
-				path:           r.URL.Path,
 			}
 			next.ServeHTTP(i, r)
 			if i.statusCode >= 500 {
-				logger.Errorw("HTTP error", "status_code", i.statusCode, "body", string(i.body))
+				logger.Errorw("HTTP error", "status_code", i.statusCode, "pattern", pattern, "body", string(i.body))
 			}
 		})
 	}

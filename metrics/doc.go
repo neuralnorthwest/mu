@@ -12,12 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mu
-
-const version = "v0.1.6"
-const _ = version
-
-// Version returns the version of mu.
-func Version() string {
-	return version
-}
+// Package metrics implements metrics collection and reporting.
+//
+// This package is a wrapper around the Prometheus client library.
+//
+// Why wrap Prometheus? Not for any usability issue, but to encourage
+// testability.
+package metrics
