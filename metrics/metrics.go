@@ -14,7 +14,9 @@
 
 package metrics
 
-import "github.com/prometheus/client_golang/prometheus"
+import (
+	"github.com/prometheus/client_golang/prometheus"
+)
 
 // Metrics is a type that allows you to register and report metrics.
 type Metrics interface {
