@@ -90,8 +90,7 @@ func (c *dummyCounter) Inc(labelValues ...string) {}
 // Add increments the counter by the given value.
 func (c *dummyCounter) Add(value float64, labelValues ...string) {}
 
-// NewCounter returns a new Counter. Is uses Register, not MustRegister, so that
-// it can call bug.Bugf if there is an error.
+// NewCounter returns a new Counter.
 func (m *metrics) NewCounter(name, help string, labels ...string) Counter {
 	if len(labels) == 0 {
 		return m.newCounter(name, help)

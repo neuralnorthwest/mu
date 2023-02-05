@@ -29,7 +29,7 @@ type Metrics interface {
 	// NewHistogram registers a histogram with the given name, help text,
 	// and labels. The labels are used to create a unique histogram for each
 	// label combination.
-	//NewHistogram(name, help string, labels ...string) Histogram
+	NewHistogram(name, help string, labels ...string) Histogram
 	// NewSummary registers a summary with the given name, help text, and
 	// labels. The labels are used to create a unique summary for each label
 	// combination.
