@@ -45,9 +45,9 @@ func (h *histogram) Observe(value float64, labelValues ...string) {
 // histogramVec is the default implementation of Histogram for histograms with
 // labels.
 type histogramVec struct {
-	// name is the name of the counter.
+	// name is the name of the histogram.
 	name string
-	// histogramVec is the prometheus counter vec.
+	// histogramVec is the prometheus histogram vec.
 	histogramVec *prometheus.HistogramVec
 }
 

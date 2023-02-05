@@ -36,6 +36,7 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gadd := m.NewGauge("gauge_test_add", "gauge_test_add")
 	gsub := m.NewGauge("gauge_test_sub", "gauge_test_sub")
 	hobs := m.NewHistogram("histogram_test_observe", "histogram_test_observe")
+	sobs := m.NewSummary("summary_test_observe", "summary_test_observe")
 	clinc := m.NewCounter("counter_test_inc_label", "counter_test_inc", "label")
 	cladd := m.NewCounter("counter_test_add_label", "counter_test_add", "label")
 	glset := m.NewGauge("gauge_test_set_label", "gauge_test_set", "label")
@@ -44,6 +45,7 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gladd := m.NewGauge("gauge_test_add_label", "gauge_test_add", "label")
 	glsub := m.NewGauge("gauge_test_sub_label", "gauge_test_sub", "label")
 	hlobs := m.NewHistogram("histogram_test_observe_label", "histogram_test_observe", "label")
+	slobs := m.NewSummary("summary_test_observe_label", "summary_test_observe", "label")
 
 	cinc.Inc()
 	cadd.Add(1)
@@ -53,6 +55,7 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gadd.Add(1)
 	gsub.Sub(1)
 	hobs.Observe(1)
+	sobs.Observe(1)
 	clinc.Inc("label")
 	cladd.Add(1, "label")
 	glset.Set(1, "label")
@@ -61,6 +64,7 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gladd.Add(1, "label")
 	glsub.Sub(1, "label")
 	hlobs.Observe(1, "label")
+	slobs.Observe(1, "label")
 
 	req := httptest.NewRequest("GET", "/metrics", nil)
 	w := httptest.NewRecorder()
@@ -78,8 +82,8 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to parse metrics: %s", err)
 	}
-	if len(metrics) != 16 {
-		t.Fatalf("expected 16 metrics, got %d", len(metrics))
+	if len(metrics) != 18 {
+		t.Fatalf("expected 18 metrics, got %d", len(metrics))
 	}
 	if metrics["counter_test_inc"].GetMetric()[0].GetCounter().GetValue() != 1 {
 		t.Fatalf("expected counter_test_inc to be 1, got %f", metrics["counter_test_inc"].GetMetric()[0].GetCounter().GetValue())
@@ -105,6 +109,9 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	if metrics["histogram_test_observe"].GetMetric()[0].GetHistogram().GetSampleCount() != 1 {
 		t.Fatalf("expected histogram_test_observe to be 1, got %d", metrics["histogram_test_observe"].GetMetric()[0].GetHistogram().GetSampleCount())
 	}
+	if metrics["summary_test_observe"].GetMetric()[0].GetSummary().GetSampleCount() != 1 {
+		t.Fatalf("expected summary_test_observe to be 1, got %d", metrics["summary_test_observe"].GetMetric()[0].GetSummary().GetSampleCount())
+	}
 	if metrics["counter_test_inc_label"].GetMetric()[0].GetCounter().GetValue() != 1 {
 		t.Fatalf("expected counter_test_inc_label to be 1, got %f", metrics["counter_test_inc_label"].GetMetric()[0].GetCounter().GetValue())
 	}
@@ -128,5 +135,8 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	}
 	if metrics["histogram_test_observe_label"].GetMetric()[0].GetHistogram().GetSampleCount() != 1 {
 		t.Fatalf("expected histogram_test_observe_label to be 1, got %d", metrics["histogram_test_observe_label"].GetMetric()[0].GetHistogram().GetSampleCount())
+	}
+	if metrics["summary_test_observe_label"].GetMetric()[0].GetSummary().GetSampleCount() != 1 {
+		t.Fatalf("expected summary_test_observe_label to be 1, got %d", metrics["summary_test_observe_label"].GetMetric()[0].GetSummary().GetSampleCount())
 	}
 }

@@ -33,7 +33,7 @@ type Metrics interface {
 	// NewSummary registers a summary with the given name, help text, and
 	// labels. The labels are used to create a unique summary for each label
 	// combination.
-	//NewSummary(name, help string, labels ...string) Summary
+	NewSummary(name, help string, labels ...string) Summary
 }
 
 // metrics is the default implementation of Metrics.
