@@ -19,7 +19,7 @@ import (
 )
 
 // Middleware is an HTTP middleware.
-type Middleware func(ht.Handler) ht.Handler
+type Middleware func(pattern string, next ht.Handler) ht.Handler
 
 // WithMiddleware returns an option that adds the given middleware to the server.
 // The first middleware in the list is the outermost middleware.

@@ -23,7 +23,7 @@ import (
 func Test_NewSummary(t *testing.T) {
 	t.Parallel()
 	m := New()
-	s := m.NewSummary("test", "test")
+	s := m.NewSummary("test", "test", nil)
 	if s == nil {
 		t.Fatal("NewSummary returned nil")
 	}
@@ -37,7 +37,7 @@ func Test_NewSummary(t *testing.T) {
 func Test_NewSummary_WithLabels(t *testing.T) {
 	t.Parallel()
 	m := New()
-	s := m.NewSummary("test", "test", "label")
+	s := m.NewSummary("test", "test", nil, "label")
 	if s == nil {
 		t.Fatal("NewSummary returned nil")
 	}
@@ -50,7 +50,7 @@ func Test_NewSummary_WithLabels(t *testing.T) {
 func Test_Summary_Observe(t *testing.T) {
 	t.Parallel()
 	m := New()
-	s := m.NewSummary("test", "test")
+	s := m.NewSummary("test", "test", nil)
 	s.Observe(1)
 }
 
@@ -59,7 +59,7 @@ func Test_Summary_Observe(t *testing.T) {
 func Test_Summary_Observe_WithLabels(t *testing.T) {
 	t.Parallel()
 	m := New()
-	s := m.NewSummary("test", "test", "label")
+	s := m.NewSummary("test", "test", nil, "label")
 	s.Observe(1, "value")
 }
 
@@ -69,7 +69,7 @@ func Test_Summary_Observe_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	s := m.NewSummary("test", "test")
+	s := m.NewSummary("test", "test", nil)
 	s.Observe(1, "value")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -82,7 +82,7 @@ func Test_Summary_Observe_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	s := m.NewSummary("test", "test", "label")
+	s := m.NewSummary("test", "test", nil, "label")
 	s.Observe(1)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -95,8 +95,8 @@ func Test_Summary_Register_WithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("test", "test")
-	m.NewSummary("test", "test")
+	m.NewSummary("test", "test", nil)
+	m.NewSummary("test", "test", nil)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -108,8 +108,8 @@ func Test_Summary_Register_WithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("test", "test", "label")
-	m.NewSummary("test", "test", "label")
+	m.NewSummary("test", "test", nil, "label")
+	m.NewSummary("test", "test", nil, "label")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -122,8 +122,8 @@ func Test_Summary_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("test", "test")
-	m.NewSummary("test", "test", "label")
+	m.NewSummary("test", "test", nil)
+	m.NewSummary("test", "test", nil, "label")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -136,8 +136,8 @@ func Test_Summary_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("test", "test", "label")
-	m.NewSummary("test", "test")
+	m.NewSummary("test", "test", nil, "label")
+	m.NewSummary("test", "test", nil)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -150,8 +150,8 @@ func Test_Summary_Register_WithDifferentLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("test", "test", "label")
-	m.NewSummary("test", "test", "label2")
+	m.NewSummary("test", "test", nil, "label")
+	m.NewSummary("test", "test", nil, "label2")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -163,7 +163,7 @@ func Test_Summary_Register_WithoutLabels_PrometheusRegistration_Failed(t *testin
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("", "")
+	m.NewSummary("", "", nil)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
@@ -175,7 +175,7 @@ func Test_Summary_Register_WithLabels_PrometheusRegistration_Failed(t *testing.T
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
 	m := New()
-	m.NewSummary("", "", "")
+	m.NewSummary("", "", nil, "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}

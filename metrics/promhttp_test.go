@@ -19,7 +19,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/golang/mock/gomock"
+	mock_logging "github.com/neuralnorthwest/mu/logging/mock"
 	"github.com/prometheus/common/expfmt"
 )
 
@@ -35,8 +36,8 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gdec := m.NewGauge("gauge_test_dec", "gauge_test_dec")
 	gadd := m.NewGauge("gauge_test_add", "gauge_test_add")
 	gsub := m.NewGauge("gauge_test_sub", "gauge_test_sub")
-	hobs := m.NewHistogram("histogram_test_observe", "histogram_test_observe")
-	sobs := m.NewSummary("summary_test_observe", "summary_test_observe")
+	hobs := m.NewHistogram("histogram_test_observe", "histogram_test_observe", nil)
+	sobs := m.NewSummary("summary_test_observe", "summary_test_observe", nil)
 	clinc := m.NewCounter("counter_test_inc_label", "counter_test_inc", "label")
 	cladd := m.NewCounter("counter_test_add_label", "counter_test_add", "label")
 	glset := m.NewGauge("gauge_test_set_label", "gauge_test_set", "label")
@@ -44,8 +45,8 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	gldec := m.NewGauge("gauge_test_dec_label", "gauge_test_dec", "label")
 	gladd := m.NewGauge("gauge_test_add_label", "gauge_test_add", "label")
 	glsub := m.NewGauge("gauge_test_sub_label", "gauge_test_sub", "label")
-	hlobs := m.NewHistogram("histogram_test_observe_label", "histogram_test_observe", "label")
-	slobs := m.NewSummary("summary_test_observe_label", "summary_test_observe", "label")
+	hlobs := m.NewHistogram("histogram_test_observe_label", "histogram_test_observe", nil, "label")
+	slobs := m.NewSummary("summary_test_observe_label", "summary_test_observe", nil, "label")
 
 	cinc.Inc()
 	cadd.Add(1)
@@ -68,7 +69,10 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 
 	req := httptest.NewRequest("GET", "/metrics", nil)
 	w := httptest.NewRecorder()
-	promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{}).ServeHTTP(w, req)
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+	logger := mock_logging.NewMockLogger(mockCtrl)
+	m.Handler(logger).ServeHTTP(w, req)
 	if w.Code != http.StatusOK {
 		t.Fatalf("expected status code %d, got %d", http.StatusOK, w.Code)
 	}

@@ -68,15 +68,15 @@ type dummyHistogram struct{}
 func (h *dummyHistogram) Observe(value float64, labelValues ...string) {}
 
 // NewHistogram returns a new Histogram.
-func (m *metrics) NewHistogram(name, help string, labels ...string) Histogram {
+func (m *metrics) NewHistogram(name, help string, buckets []float64, labels ...string) Histogram {
 	if len(labels) == 0 {
-		return m.newHistogram(name, help)
+		return m.newHistogram(name, help, buckets)
 	}
-	return m.newHistogramVec(name, help, labels...)
+	return m.newHistogramVec(name, help, buckets, labels...)
 }
 
 // newHistogram returns a new Histogram.
-func (m *metrics) newHistogram(name, help string) Histogram {
+func (m *metrics) newHistogram(name, help string, buckets []float64) Histogram {
 	if _, ok := m.histograms[name]; ok {
 		bug.Bugf("histogram %s already registered", name)
 		return &dummyHistogram{}
@@ -86,8 +86,9 @@ func (m *metrics) newHistogram(name, help string) Histogram {
 		return &dummyHistogram{}
 	}
 	h := prometheus.NewHistogram(prometheus.HistogramOpts{
-		Name: name,
-		Help: help,
+		Name:    name,
+		Help:    help,
+		Buckets: buckets,
 	})
 	if err := m.registry.Register(h); err != nil {
 		bug.Bugf("histogram %s: %s", name, err)
@@ -101,7 +102,7 @@ func (m *metrics) newHistogram(name, help string) Histogram {
 }
 
 // newHistogramVec returns a new histogramVec.
-func (m *metrics) newHistogramVec(name, help string, labels ...string) Histogram {
+func (m *metrics) newHistogramVec(name, help string, buckets []float64, labels ...string) Histogram {
 	if _, ok := m.histogramVecs[name]; ok {
 		bug.Bugf("histogram vector %s already registered", name)
 		return &dummyHistogram{}
@@ -111,8 +112,9 @@ func (m *metrics) newHistogramVec(name, help string, labels ...string) Histogram
 		return &dummyHistogram{}
 	}
 	h := prometheus.NewHistogramVec(prometheus.HistogramOpts{
-		Name: name,
-		Help: help,
+		Name:    name,
+		Help:    help,
+		Buckets: buckets,
 	}, labels)
 	if err := m.registry.Register(h); err != nil {
 		bug.Bugf("histogram vector %s: %s", name, err)

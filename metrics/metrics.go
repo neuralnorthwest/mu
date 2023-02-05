@@ -15,6 +15,9 @@
 package metrics
 
 import (
+	ht "net/http"
+
+	"github.com/neuralnorthwest/mu/logging"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -29,13 +32,17 @@ type Metrics interface {
 	// combination.
 	NewGauge(name, help string, labels ...string) Gauge
 	// NewHistogram registers a histogram with the given name, help text,
-	// and labels. The labels are used to create a unique histogram for each
-	// label combination.
-	NewHistogram(name, help string, labels ...string) Histogram
+	// buckets, and labels. The labels are used to create a unique histogram for
+	// each label combination. Buckets can be nil, in which case the default
+	// buckets are used.
+	NewHistogram(name, help string, buckets []float64, labels ...string) Histogram
 	// NewSummary registers a summary with the given name, help text, and
-	// labels. The labels are used to create a unique summary for each label
-	// combination.
-	NewSummary(name, help string, labels ...string) Summary
+	// objectives, and labels. The labels are used to create a unique summary
+	// for each label combination. Objectives can be nil, in which case the
+	// default objectives are used.
+	NewSummary(name, help string, objectives map[float64]float64, labels ...string) Summary
+	// Handler returns a ht.Handler that serves the metrics.
+	Handler(logger logging.Logger) ht.Handler
 }
 
 // metrics is the default implementation of Metrics.

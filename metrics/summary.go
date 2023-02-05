@@ -68,15 +68,15 @@ type dummySummary struct{}
 func (h *dummySummary) Observe(value float64, labelValues ...string) {}
 
 // NewSummary returns a new Summary.
-func (m *metrics) NewSummary(name, help string, labels ...string) Summary {
+func (m *metrics) NewSummary(name, help string, objectives map[float64]float64, labels ...string) Summary {
 	if len(labels) == 0 {
-		return m.newSummary(name, help)
+		return m.newSummary(name, help, objectives)
 	}
-	return m.newSummaryVec(name, help, labels...)
+	return m.newSummaryVec(name, help, objectives, labels...)
 }
 
 // newSummary returns a new Summary.
-func (m *metrics) newSummary(name, help string) Summary {
+func (m *metrics) newSummary(name, help string, objectives map[float64]float64) Summary {
 	if _, ok := m.summaries[name]; ok {
 		bug.Bugf("summary %s already registered", name)
 		return &dummySummary{}
@@ -86,8 +86,9 @@ func (m *metrics) newSummary(name, help string) Summary {
 		return &dummySummary{}
 	}
 	h := prometheus.NewSummary(prometheus.SummaryOpts{
-		Name: name,
-		Help: help,
+		Name:       name,
+		Help:       help,
+		Objectives: objectives,
 	})
 	if err := m.registry.Register(h); err != nil {
 		bug.Bugf("summary %s: %s", name, err)
@@ -101,7 +102,7 @@ func (m *metrics) newSummary(name, help string) Summary {
 }
 
 // newSummaryVec returns a new summaryVec.
-func (m *metrics) newSummaryVec(name, help string, labels ...string) Summary {
+func (m *metrics) newSummaryVec(name, help string, objectives map[float64]float64, labels ...string) Summary {
 	if _, ok := m.summaryVecs[name]; ok {
 		bug.Bugf("summary vector %s already registered", name)
 		return &dummySummary{}
@@ -111,8 +112,9 @@ func (m *metrics) newSummaryVec(name, help string, labels ...string) Summary {
 		return &dummySummary{}
 	}
 	h := prometheus.NewSummaryVec(prometheus.SummaryOpts{
-		Name: name,
-		Help: help,
+		Name:       name,
+		Help:       help,
+		Objectives: objectives,
 	}, labels)
 	if err := m.registry.Register(h); err != nil {
 		bug.Bugf("summary vector %s: %s", name, err)

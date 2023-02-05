@@ -78,7 +78,7 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 // Handle registers the handler for the given pattern.
 func (s *Server) Handle(pattern string, handler ht.Handler) {
 	for i := len(s.middleware) - 1; i >= 0; i-- {
-		handler = s.middleware[i](handler)
+		handler = s.middleware[i](pattern, handler)
 	}
 	s.mux.Handle(pattern, handler)
 }
