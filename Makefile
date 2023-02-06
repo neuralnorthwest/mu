@@ -60,3 +60,11 @@ test-go:
 .PHONY: release
 release:
 	@./scripts/release.sh
+
+.PHONY: wc
+wc:
+	@find . -name \*.go -exec wc -l {} + | sort -n
+
+.PHONY: wc-tests
+wc-tests:
+	@find . -name \*_test.go -exec wc -l {} + | sort -n

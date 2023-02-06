@@ -1,6 +1,7 @@
 ## v0.1.7
 
 TODO
+* More testing
 
 ## v0.1.6
 
