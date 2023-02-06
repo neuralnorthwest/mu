@@ -26,6 +26,9 @@ import (
 
 // MetricsOptions specifies options for HTTP metrics
 type MetricsOptions struct {
+	// Server is the server to use for the metrics endpoint. If nil, the
+	// server that is being constructed will be used.
+	Server *Server
 	// Path is the path to the metrics endpoint. If empty, the metrics
 	// are served at /metrics.
 	Path string
@@ -40,17 +43,16 @@ type MetricsOptions struct {
 	ResponseSizeBuckets []float64
 }
 
-// WithMetrics returns a ServerOption that adds HTTP request metrics to
-// the server.
-func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions) ServerOption {
+// MetricsMiddleware returns an HTTP middleware that adds HTTP request metrics
+// to the server.
+func MetricsMiddleware(met metrics.Metrics, opts MetricsOptions) Middleware {
 	requestsTotal := met.NewCounter("http_requests_total", "The total number of HTTP requests.", "method", "code", "path")
 	requestsInFlight := met.NewGauge("http_requests_in_flight", "The number of HTTP requests currently in flight.", "method", "code", "path")
 	requestDurations := met.NewHistogram("http_request_duration_seconds", "The HTTP request latencies in seconds.", opts.RequestDurationBuckets, "method", "code", "path")
 	requestSizes := met.NewHistogram("http_request_size_bytes", "The HTTP request sizes in bytes.", opts.RequestSizeBuckets, "method", "code", "path")
 	responseSizes := met.NewHistogram("http_response_size_bytes", "The HTTP response sizes in bytes.", opts.ResponseSizeBuckets, "method", "code", "path")
 	timeToWriteHeader := met.NewHistogram("http_time_to_write_header", "The time to write the HTTP response header in seconds.", nil, "method", "code", "path")
-	// Create a middleware option that instruments the HTTP handlers.
-	addMiddleware := WithMiddleware(func(pattern string, next http.Handler) http.Handler {
+	return func(pattern string, next http.Handler) http.Handler {
 		pathLabel := prometheus.Labels{"path": pattern}
 		var h ht.Handler
 		h = promhttp.InstrumentHandlerCounter(metrics.PrometheusCounterVec(requestsTotal).MustCurryWith(pathLabel), next)
@@ -60,21 +62,26 @@ func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions
 		h = promhttp.InstrumentHandlerResponseSize(metrics.PrometheusHistogramVec(responseSizes).MustCurryWith(pathLabel), h)
 		h = promhttp.InstrumentHandlerTimeToWriteHeader(metrics.PrometheusHistogramVec(timeToWriteHeader).MustCurryWith(pathLabel), h)
 		return h
-	})
-	// Create a server option that adds the metrics handler.
-	addHandler := func(server *Server) error {
+	}
+}
+
+// WithMetrics returns a ServerOption that adds HTTP request metrics to
+// the server.
+func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions) ServerOption {
+	middleware := MetricsMiddleware(met, opts)
+	return func(server *Server) error {
+		err := WithMiddleware(middleware)(server)
+		if err != nil {
+			return err
+		}
 		path := opts.Path
 		if path == "" {
 			path = "/metrics"
 		}
+		if opts.Server != nil {
+			server = opts.Server
+		}
 		server.Handle(path, promhttp.InstrumentMetricHandler(metrics.PrometheusRegistry(met), met.Handler(logger)))
 		return nil
-	}
-	// Return a server option that adds the middleware and handler.
-	return func(server *Server) error {
-		if err := addMiddleware(server); err != nil {
-			return err
-		}
-		return addHandler(server)
 	}
 }
