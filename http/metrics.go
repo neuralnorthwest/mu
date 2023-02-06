@@ -15,7 +15,6 @@
 package http
 
 import (
-	"net/http"
 	ht "net/http"
 
 	"github.com/neuralnorthwest/mu/logging"
@@ -55,7 +54,7 @@ func MetricsMiddleware(met metrics.Metrics, opts MetricsOptions) Middleware {
 	requestSizes := met.NewHistogram("http_request_size_bytes", "The HTTP request sizes in bytes.", opts.RequestSizeBuckets, "method", "code", "path")
 	responseSizes := met.NewHistogram("http_response_size_bytes", "The HTTP response sizes in bytes.", opts.ResponseSizeBuckets, "method", "code", "path")
 	timeToWriteHeader := met.NewHistogram("http_time_to_write_header_seconds", "The time to write the HTTP response header in seconds.", opts.TimeToWriteHeaderBuckets, "method", "code", "path")
-	return func(pattern string, next http.Handler) http.Handler {
+	return func(pattern string, next ht.Handler) ht.Handler {
 		pathLabel := prometheus.Labels{"path": pattern}
 		var h ht.Handler
 		h = promhttp.InstrumentHandlerCounter(metrics.PrometheusCounterVec(requestsTotal).MustCurryWith(pathLabel), next)
