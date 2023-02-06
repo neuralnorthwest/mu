@@ -28,7 +28,7 @@ import (
 // are correctly served by the promhttp handler.
 func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	t.Parallel()
-	m := New().(*metrics)
+	m := newMetrics(t, WithGoCollector())
 	cinc := m.NewCounter("counter_test_inc", "counter_test_inc")
 	cadd := m.NewCounter("counter_test_add", "counter_test_add")
 	gset := m.NewGauge("gauge_test_set", "gauge_test_set")
@@ -86,8 +86,9 @@ func Test_Prometheus_Metrics_Promhttp_Handler(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to parse metrics: %s", err)
 	}
-	if len(metrics) != 18 {
-		t.Fatalf("expected 18 metrics, got %d", len(metrics))
+	// 45 total == 18 + 27 (go metrics)
+	if len(metrics) != 18+27 {
+		t.Fatalf("expected 18 + 27 metrics, got %d", len(metrics))
 	}
 	if metrics["counter_test_inc"].GetMetric()[0].GetCounter().GetValue() != 1 {
 		t.Fatalf("expected counter_test_inc to be 1, got %f", metrics["counter_test_inc"].GetMetric()[0].GetCounter().GetValue())

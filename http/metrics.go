@@ -41,22 +41,25 @@ type MetricsOptions struct {
 	// ResponseSizeBuckets are the buckets for the response size
 	// histogram. If empty, the default buckets are used.
 	ResponseSizeBuckets []float64
+	// TimeToWriteHeaderBuckets are the buckets for the time to write the
+	// response header histogram. If empty, the default buckets are used.
+	TimeToWriteHeaderBuckets []float64
 }
 
 // MetricsMiddleware returns an HTTP middleware that adds HTTP request metrics
 // to the server.
 func MetricsMiddleware(met metrics.Metrics, opts MetricsOptions) Middleware {
 	requestsTotal := met.NewCounter("http_requests_total", "The total number of HTTP requests.", "method", "code", "path")
-	requestsInFlight := met.NewGauge("http_requests_in_flight", "The number of HTTP requests currently in flight.", "method", "code", "path")
+	requestsInProgress := met.NewGauge("http_requests_in_progress", "The number of HTTP requests currently in progress.", "path")
 	requestDurations := met.NewHistogram("http_request_duration_seconds", "The HTTP request latencies in seconds.", opts.RequestDurationBuckets, "method", "code", "path")
 	requestSizes := met.NewHistogram("http_request_size_bytes", "The HTTP request sizes in bytes.", opts.RequestSizeBuckets, "method", "code", "path")
 	responseSizes := met.NewHistogram("http_response_size_bytes", "The HTTP response sizes in bytes.", opts.ResponseSizeBuckets, "method", "code", "path")
-	timeToWriteHeader := met.NewHistogram("http_time_to_write_header", "The time to write the HTTP response header in seconds.", nil, "method", "code", "path")
+	timeToWriteHeader := met.NewHistogram("http_time_to_write_header_seconds", "The time to write the HTTP response header in seconds.", opts.TimeToWriteHeaderBuckets, "method", "code", "path")
 	return func(pattern string, next http.Handler) http.Handler {
 		pathLabel := prometheus.Labels{"path": pattern}
 		var h ht.Handler
 		h = promhttp.InstrumentHandlerCounter(metrics.PrometheusCounterVec(requestsTotal).MustCurryWith(pathLabel), next)
-		h = promhttp.InstrumentHandlerInFlight(metrics.PrometheusGaugeVec(requestsInFlight).With(pathLabel), h)
+		h = promhttp.InstrumentHandlerInFlight(metrics.PrometheusGaugeVec(requestsInProgress).With(pathLabel), h)
 		h = promhttp.InstrumentHandlerDuration(metrics.PrometheusHistogramVec(requestDurations).MustCurryWith(pathLabel), h)
 		h = promhttp.InstrumentHandlerRequestSize(metrics.PrometheusHistogramVec(requestSizes).MustCurryWith(pathLabel), h)
 		h = promhttp.InstrumentHandlerResponseSize(metrics.PrometheusHistogramVec(responseSizes).MustCurryWith(pathLabel), h)

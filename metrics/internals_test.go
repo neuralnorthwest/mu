@@ -16,11 +16,21 @@ package metrics
 
 import "testing"
 
+// newMetrics returns a new metrics instance.
+func newMetrics(t *testing.T, opts ...Option) *metrics {
+	t.Helper()
+	mi, err := New(opts...)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return mi.(*metrics)
+}
+
 // Test_PrometheusRegistry tests that PrometheusRegistry returns the internal
 // prometheus registry.
 func Test_PrometheusRegistry(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	reg := PrometheusRegistry(m)
 	if reg == nil {
 		t.Fatal("PrometheusRegistry returned nil")
@@ -31,7 +41,7 @@ func Test_PrometheusRegistry(t *testing.T) {
 // internal prometheus counter vector.
 func Test_PrometheusCounterVec(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	c.Inc("value")
 	cv := PrometheusCounterVec(c)
@@ -44,7 +54,7 @@ func Test_PrometheusCounterVec(t *testing.T) {
 // prometheus gauge vector.
 func Test_PrometheusGaugeVec(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Set(1, "value")
 	gv := PrometheusGaugeVec(g)
@@ -57,7 +67,7 @@ func Test_PrometheusGaugeVec(t *testing.T) {
 // internal prometheus histogram vector.
 func Test_PrometheusHistogramVec(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil, "label")
 	h.Observe(1, "value")
 	hv := PrometheusHistogramVec(h)

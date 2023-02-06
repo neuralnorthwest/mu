@@ -22,7 +22,7 @@ import (
 // without labels.
 func Test_NewGauge(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	if g == nil {
 		t.Fatal("NewGauge returned nil")
@@ -36,7 +36,7 @@ func Test_NewGauge(t *testing.T) {
 // with labels.
 func Test_NewGauge_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	if g == nil {
 		t.Fatal("NewGauge returned nil")
@@ -49,7 +49,7 @@ func Test_NewGauge_WithLabels(t *testing.T) {
 // Test_Gauge_Set tests that Set sets the gauge.
 func Test_Gauge_Set(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Set(1)
 }
@@ -57,7 +57,7 @@ func Test_Gauge_Set(t *testing.T) {
 // Test_Gauge_Inc tests that Inc increments the gauge.
 func Test_Gauge_Inc(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Inc()
 }
@@ -65,7 +65,7 @@ func Test_Gauge_Inc(t *testing.T) {
 // Test_Gauge_Dec tests that Dec increments the gauge.
 func Test_Gauge_Dec(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Dec()
 }
@@ -73,7 +73,7 @@ func Test_Gauge_Dec(t *testing.T) {
 // Test_Gauge_Add tests that Add increments the gauge.
 func Test_Gauge_Add(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Add(1)
 }
@@ -81,7 +81,7 @@ func Test_Gauge_Add(t *testing.T) {
 // Test_Gauge_Sub tests that Sub increments the gauge.
 func Test_Gauge_Sub(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Sub(1)
 }
@@ -89,7 +89,7 @@ func Test_Gauge_Sub(t *testing.T) {
 // Test_Gauge_Set_WithLabels tests that Set sets the gauge with labels.
 func Test_Gauge_Set_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Set(1, "value")
 }
@@ -98,7 +98,7 @@ func Test_Gauge_Set_WithLabels(t *testing.T) {
 // labels.
 func Test_Gauge_Inc_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Inc("value")
 }
@@ -107,7 +107,7 @@ func Test_Gauge_Inc_WithLabels(t *testing.T) {
 // labels.
 func Test_Gauge_Dec_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Dec("value")
 }
@@ -116,7 +116,7 @@ func Test_Gauge_Dec_WithLabels(t *testing.T) {
 // labels.
 func Test_Gauge_Add_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Add(1, "value")
 }
@@ -125,7 +125,7 @@ func Test_Gauge_Add_WithLabels(t *testing.T) {
 // labels.
 func Test_Gauge_Sub_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Sub(1, "value")
 }
@@ -135,7 +135,7 @@ func Test_Gauge_Sub_WithLabels(t *testing.T) {
 func Test_Gauge_Set_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Set(1, "value")
 	if bugMsg == "" {
@@ -148,7 +148,7 @@ func Test_Gauge_Set_Failed_WithLabels(t *testing.T) {
 func Test_Gauge_Inc_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Inc("value")
 	if bugMsg == "" {
@@ -161,7 +161,7 @@ func Test_Gauge_Inc_Failed_WithLabels(t *testing.T) {
 func Test_Gauge_Dec_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Dec("value")
 	if bugMsg == "" {
@@ -174,7 +174,7 @@ func Test_Gauge_Dec_Failed_WithLabels(t *testing.T) {
 func Test_Gauge_Add_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Add(1, "value")
 	if bugMsg == "" {
@@ -187,7 +187,7 @@ func Test_Gauge_Add_Failed_WithLabels(t *testing.T) {
 func Test_Gauge_Sub_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test")
 	g.Sub(1, "value")
 	if bugMsg == "" {
@@ -200,7 +200,7 @@ func Test_Gauge_Sub_Failed_WithLabels(t *testing.T) {
 func Test_Gauge_Set_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Set(1)
 	if bugMsg == "" {
@@ -213,7 +213,7 @@ func Test_Gauge_Set_Failed_WithoutLabels(t *testing.T) {
 func Test_Gauge_Inc_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Inc()
 	if bugMsg == "" {
@@ -226,7 +226,7 @@ func Test_Gauge_Inc_Failed_WithoutLabels(t *testing.T) {
 func Test_Gauge_Dec_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Dec()
 	if bugMsg == "" {
@@ -239,7 +239,7 @@ func Test_Gauge_Dec_Failed_WithoutLabels(t *testing.T) {
 func Test_Gauge_Add_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Add(1)
 	if bugMsg == "" {
@@ -252,7 +252,7 @@ func Test_Gauge_Add_Failed_WithoutLabels(t *testing.T) {
 func Test_Gauge_Sub_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	g := m.NewGauge("test", "test", "label")
 	g.Sub(1)
 	if bugMsg == "" {
@@ -265,7 +265,7 @@ func Test_Gauge_Sub_Failed_WithoutLabels(t *testing.T) {
 func Test_Gauge_Register_WithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("test", "test")
 	m.NewGauge("test", "test")
 	if bugMsg == "" {
@@ -278,7 +278,7 @@ func Test_Gauge_Register_WithoutLabels_Twice(t *testing.T) {
 func Test_Gauge_Register_WithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("test", "test", "label")
 	m.NewGauge("test", "test", "label")
 	if bugMsg == "" {
@@ -292,7 +292,7 @@ func Test_Gauge_Register_WithLabels_Twice(t *testing.T) {
 func Test_Gauge_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("test", "test")
 	m.NewGauge("test", "test", "label")
 	if bugMsg == "" {
@@ -306,7 +306,7 @@ func Test_Gauge_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 func Test_Gauge_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("test", "test", "label")
 	m.NewGauge("test", "test")
 	if bugMsg == "" {
@@ -320,7 +320,7 @@ func Test_Gauge_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 func Test_Gauge_Register_WithDifferentLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("test", "test", "label")
 	m.NewGauge("test", "test", "label2")
 	if bugMsg == "" {
@@ -333,7 +333,7 @@ func Test_Gauge_Register_WithDifferentLabels_Twice(t *testing.T) {
 func Test_Gauge_Register_WithoutLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("", "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -345,9 +345,26 @@ func Test_Gauge_Register_WithoutLabels_PrometheusRegistration_Failed(t *testing.
 func Test_Gauge_Register_WithLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewGauge("", "", "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
+}
+
+// Test_Gauge_Dummy tests the dummy gauge that is returned if an error
+// occurs.
+func Test_Gauge_Dummy(t *testing.T) {
+	var bugMsg string
+	defer overrideBugHandler(t, &bugMsg)()
+	m := newMetrics(t)
+	g := m.NewGauge("", "", "")
+	if bugMsg == "" {
+		t.Fatal("bug handler was not called")
+	}
+	g.Set(1)
+	g.Add(1)
+	g.Sub(1)
+	g.Inc()
+	g.Dec()
 }

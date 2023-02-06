@@ -22,7 +22,7 @@ import (
 // without labels.
 func Test_NewSummary(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil)
 	if s == nil {
 		t.Fatal("NewSummary returned nil")
@@ -36,7 +36,7 @@ func Test_NewSummary(t *testing.T) {
 // with labels.
 func Test_NewSummary_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil, "label")
 	if s == nil {
 		t.Fatal("NewSummary returned nil")
@@ -49,7 +49,7 @@ func Test_NewSummary_WithLabels(t *testing.T) {
 // Test_Summary_Observe tests that Observe updates the summary.
 func Test_Summary_Observe(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil)
 	s.Observe(1)
 }
@@ -58,7 +58,7 @@ func Test_Summary_Observe(t *testing.T) {
 // with labels.
 func Test_Summary_Observe_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil, "label")
 	s.Observe(1, "value")
 }
@@ -68,7 +68,7 @@ func Test_Summary_Observe_WithLabels(t *testing.T) {
 func Test_Summary_Observe_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil)
 	s.Observe(1, "value")
 	if bugMsg == "" {
@@ -81,7 +81,7 @@ func Test_Summary_Observe_Failed_WithLabels(t *testing.T) {
 func Test_Summary_Observe_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	s := m.NewSummary("test", "test", nil, "label")
 	s.Observe(1)
 	if bugMsg == "" {
@@ -94,7 +94,7 @@ func Test_Summary_Observe_Failed_WithoutLabels(t *testing.T) {
 func Test_Summary_Register_WithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("test", "test", nil)
 	m.NewSummary("test", "test", nil)
 	if bugMsg == "" {
@@ -107,7 +107,7 @@ func Test_Summary_Register_WithoutLabels_Twice(t *testing.T) {
 func Test_Summary_Register_WithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("test", "test", nil, "label")
 	m.NewSummary("test", "test", nil, "label")
 	if bugMsg == "" {
@@ -121,7 +121,7 @@ func Test_Summary_Register_WithLabels_Twice(t *testing.T) {
 func Test_Summary_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("test", "test", nil)
 	m.NewSummary("test", "test", nil, "label")
 	if bugMsg == "" {
@@ -135,7 +135,7 @@ func Test_Summary_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 func Test_Summary_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("test", "test", nil, "label")
 	m.NewSummary("test", "test", nil)
 	if bugMsg == "" {
@@ -149,7 +149,7 @@ func Test_Summary_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 func Test_Summary_Register_WithDifferentLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("test", "test", nil, "label")
 	m.NewSummary("test", "test", nil, "label2")
 	if bugMsg == "" {
@@ -162,7 +162,7 @@ func Test_Summary_Register_WithDifferentLabels_Twice(t *testing.T) {
 func Test_Summary_Register_WithoutLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("", "", nil)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -174,9 +174,22 @@ func Test_Summary_Register_WithoutLabels_PrometheusRegistration_Failed(t *testin
 func Test_Summary_Register_WithLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewSummary("", "", nil, "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
+}
+
+// Test_Summary_Dummy tests the dummy summary that is returned if an error
+// occurs.
+func Test_Summary_Dummy(t *testing.T) {
+	var bugMsg string
+	defer overrideBugHandler(t, &bugMsg)()
+	m := newMetrics(t)
+	s := m.NewSummary("", "", nil, "")
+	if bugMsg == "" {
+		t.Fatal("bug handler was not called")
+	}
+	s.Observe(1)
 }

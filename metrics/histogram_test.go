@@ -22,7 +22,7 @@ import (
 // without labels.
 func Test_NewHistogram(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil)
 	if h == nil {
 		t.Fatal("NewHistogram returned nil")
@@ -36,7 +36,7 @@ func Test_NewHistogram(t *testing.T) {
 // with labels.
 func Test_NewHistogram_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil, "label")
 	if h == nil {
 		t.Fatal("NewHistogram returned nil")
@@ -49,7 +49,7 @@ func Test_NewHistogram_WithLabels(t *testing.T) {
 // Test_Histogram_Observe tests that Observe updates the histogram.
 func Test_Histogram_Observe(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil)
 	h.Observe(1)
 }
@@ -58,7 +58,7 @@ func Test_Histogram_Observe(t *testing.T) {
 // with labels.
 func Test_Histogram_Observe_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil, "label")
 	h.Observe(1, "value")
 }
@@ -68,7 +68,7 @@ func Test_Histogram_Observe_WithLabels(t *testing.T) {
 func Test_Histogram_Observe_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil)
 	h.Observe(1, "value")
 	if bugMsg == "" {
@@ -81,7 +81,7 @@ func Test_Histogram_Observe_Failed_WithLabels(t *testing.T) {
 func Test_Histogram_Observe_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	h := m.NewHistogram("test", "test", nil, "label")
 	h.Observe(1)
 	if bugMsg == "" {
@@ -94,7 +94,7 @@ func Test_Histogram_Observe_Failed_WithoutLabels(t *testing.T) {
 func Test_Histogram_Register_WithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("test", "test", nil)
 	m.NewHistogram("test", "test", nil)
 	if bugMsg == "" {
@@ -107,7 +107,7 @@ func Test_Histogram_Register_WithoutLabels_Twice(t *testing.T) {
 func Test_Histogram_Register_WithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("test", "test", nil, "label")
 	m.NewHistogram("test", "test", nil, "label")
 	if bugMsg == "" {
@@ -121,7 +121,7 @@ func Test_Histogram_Register_WithLabels_Twice(t *testing.T) {
 func Test_Histogram_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("test", "test", nil)
 	m.NewHistogram("test", "test", nil, "label")
 	if bugMsg == "" {
@@ -135,7 +135,7 @@ func Test_Histogram_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 func Test_Histogram_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("test", "test", nil, "label")
 	m.NewHistogram("test", "test", nil)
 	if bugMsg == "" {
@@ -149,7 +149,7 @@ func Test_Histogram_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 func Test_Histogram_Register_WithDifferentLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("test", "test", nil, "label")
 	m.NewHistogram("test", "test", nil, "label2")
 	if bugMsg == "" {
@@ -162,7 +162,7 @@ func Test_Histogram_Register_WithDifferentLabels_Twice(t *testing.T) {
 func Test_Histogram_Register_WithoutLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("", "", nil)
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -174,9 +174,22 @@ func Test_Histogram_Register_WithoutLabels_PrometheusRegistration_Failed(t *test
 func Test_Histogram_Register_WithLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewHistogram("", "", nil, "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
+}
+
+// Test_Histogram_Dummy tests the dummy histogram that is returned if an error
+// occurs.
+func Test_Histogram_Dummy(t *testing.T) {
+	var bugMsg string
+	defer overrideBugHandler(t, &bugMsg)()
+	m := newMetrics(t)
+	h := m.NewHistogram("", "", nil, "")
+	if bugMsg == "" {
+		t.Fatal("bug handler was not called")
+	}
+	h.Observe(1)
 }
