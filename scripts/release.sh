@@ -44,6 +44,23 @@ if [ "${fail_vercheck:-}" = "1" ]; then
     exit 1
 fi
 
+# Make sure README.md is clean
+if ! git diff --quiet README.md; then
+    echo "README.md is dirty."
+    exit 1
+fi
+
+# Run scripts/update-wc.sh to update the code size badge. README.md should
+# be clean after this.
+if ! scripts/update-wc.sh; then
+    echo "Failed to update code size badge."
+    exit 1
+fi
+if ! git diff --quiet README.md; then
+    echo "README.md is dirty after updating code size badge. Run scripts/update-wc.sh and commit the changes."
+    exit 1
+fi
+
 # Scrape the changelog for the release notes. Grab the block from
 # `## $version` to the next `## `.
 if ! grep -q "## $version" CHANGELOG.md; then
