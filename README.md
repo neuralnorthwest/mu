@@ -1,4 +1,4 @@
- # mu
+ # Mu
 
 ![GitHub](https://img.shields.io/github/license/neuralnorthwest/mu?style=plastic)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/neuralnorthwest/mu?style=plastic)
@@ -90,20 +90,8 @@ make setup-dev
 
 ### Contributing
 
-To contribute, fork the repository and submit a pull request.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for more information.
 
-The main branch for development is `develop`. If you intend to submit PRs,
-base them off of `develop`:
+## Code of Conduct
 
-```bash
-git checkout -b my-feature develop
-git push -u origin my-feature
-```
-
-If you find yourself frequently contributing to Mu, you can apply to become a
-member of the `contributors` team. This will give you write access to the
-repository, and allow you to create branches directly on the main repository
-instead of your fork.
-
-To apply, open an issue in the repository and ask to be added to the
-`contributors` team.
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) for more information.
