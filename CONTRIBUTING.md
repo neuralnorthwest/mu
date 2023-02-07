@@ -1,4 +1,4 @@
-## Contributing to Mu
+# Contributing to Mu
 
 To contribute, fork the repository and submit a pull request.
 
