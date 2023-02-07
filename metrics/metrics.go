@@ -19,6 +19,7 @@ import (
 
 	"github.com/neuralnorthwest/mu/logging"
 	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/collectors"
 )
 
 // Metrics is a type that allows you to register and report metrics.
@@ -67,9 +68,55 @@ type metrics struct {
 	summaryVecs map[string]*prometheus.SummaryVec
 }
 
+// Option is a type that can be used to configure a Metrics.
+type Option interface {
+	apply(*metrics) error
+}
+
+// withRegistryOption is an Option that configures the Metrics to use the given
+// prometheus registry.
+type withRegistryOption struct {
+	registry *prometheus.Registry
+}
+
+func (opt *withRegistryOption) apply(m *metrics) error {
+	m.registry = opt.registry
+	return nil
+}
+
+// funcOption is an Option that is implemented by a function.
+type funcOption struct {
+	f func(*metrics) error
+}
+
+func (opt *funcOption) apply(m *metrics) error {
+	return opt.f(m)
+}
+
+// WithRegistry returns an Option that configures the Metrics to use the given
+// prometheus registry. If specified multiple times, only the last one is used.
+func WithRegistry(registry *prometheus.Registry) Option {
+	return &withRegistryOption{registry: registry}
+}
+
+// WithCollector returns an Option that configures the Metrics to register the
+// given collector. This can be specified multiple times to register multiple
+// collectors.
+func WithCollector(collector prometheus.Collector) Option {
+	return &funcOption{f: func(m *metrics) error {
+		return m.registry.Register(collector)
+	}}
+}
+
+// WithGoCollector returns an Option that configures the Metrics to register
+// the Go collector. This should only be specified once.
+func WithGoCollector() Option {
+	return WithCollector(collectors.NewGoCollector())
+}
+
 // New returns a new Metrics.
-func New() Metrics {
-	return &metrics{
+func New(opts ...Option) (Metrics, error) {
+	met := &metrics{
 		registry:      prometheus.NewRegistry(),
 		counters:      make(map[string]prometheus.Counter),
 		counterVecs:   make(map[string]*prometheus.CounterVec),
@@ -80,4 +127,15 @@ func New() Metrics {
 		summaries:     make(map[string]prometheus.Summary),
 		summaryVecs:   make(map[string]*prometheus.SummaryVec),
 	}
+	// Apply any options that configure the registry first, then apply the rest.
+	for _, applyRegistry := range []bool{true, false} {
+		for _, opt := range opts {
+			if _, ok := opt.(*withRegistryOption); ok == applyRegistry {
+				if err := opt.apply(met); err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	return met, nil
 }

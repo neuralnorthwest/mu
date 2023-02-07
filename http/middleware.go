@@ -30,3 +30,11 @@ func WithMiddleware(m Middleware, more ...Middleware) ServerOption {
 		return nil
 	}
 }
+
+// wrapHandler wraps the given handler with the middleware.
+func (s *Server) wrapHandler(pattern string, handler ht.Handler) ht.Handler {
+	for i := len(s.middleware) - 1; i >= 0; i-- {
+		handler = s.middleware[i](pattern, handler)
+	}
+	return handler
+}

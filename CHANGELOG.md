@@ -1,3 +1,12 @@
+## v0.1.7
+
+* Metrics improvements
+* Lots more tests
+
+* Bug fixes:
+  * `http.ErrorLoggingMiddleware` now correctly logs the error.
+  * Fixes to `Run` method of `http.Server`.
+
 ## v0.1.6
 
 * Prometheus metrics

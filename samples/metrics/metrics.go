@@ -64,7 +64,7 @@ func newMetricsApp() (*MetricsApp, error) {
 
 // setup sets up the application.
 func (a *MetricsApp) setup(workerGroup worker.Group) error {
-	met := metrics.New()
+	met, _ := metrics.New()
 	a.helloCounter = met.NewCounter("hello_counter", "Number of times the /hello endpoint has been called")
 	httpServer, err := http.NewServer()
 	if err != nil {

@@ -25,7 +25,11 @@
 # release: releases the project (called from CI)
 
 .PHONY: check
-check: check-license lint-go test-go
+check: generate check-license lint-go test-go
+
+.PHONY: generate
+generate:
+	@go generate ./...
 
 .PHONY: setup-dev
 setup-dev: setup-git-hooks setup-venv setup-gh

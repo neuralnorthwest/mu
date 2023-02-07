@@ -69,6 +69,14 @@ jobs:
             echo "ERROR: Version ${{ steps.detect-version.outputs.version }} already exists"
             exit 1
           fi
+  check-loc:
+    name: Check LOC
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          scripts/update-wc.sh
+          git diff --exit-code
   release:
     name: Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -76,6 +84,7 @@ jobs:
       - test
       - lint
       - check-license
+      - check-loc
       - detect-version
     runs-on: ubuntu-latest
     steps:

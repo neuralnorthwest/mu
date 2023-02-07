@@ -39,10 +39,14 @@ func (i *errorLoggingInterceptor) Write(body []byte) (int, error) {
 	// If the status code is >= 500, then the body is an error message.
 	// Capture the first 512 bytes of the body.
 	if i.statusCode >= 500 {
-		if len(i.body) < 512 {
-			i.body = append(i.body, body...)
+		if len(body) <= 512 {
+			i.body = body
 		} else {
-			i.body = append(i.body, []byte("...")...)
+
+			//i.body = append(body[:512], []byte("...")...)
+			i.body = make([]byte, 515)
+			copy(i.body, body[:512])
+			copy(i.body[512:], []byte("..."))
 		}
 	}
 	return i.ResponseWriter.Write(body)
@@ -57,8 +61,14 @@ func ErrorLoggingMiddleware(logger logging.Logger) Middleware {
 			}
 			next.ServeHTTP(i, r)
 			if i.statusCode >= 500 {
-				logger.Errorw("HTTP error", "status_code", i.statusCode, "pattern", pattern, "body", string(i.body))
+				logger.Errorw("HTTP error", "status_code", i.statusCode, "path", pattern, "body", string(i.body))
 			}
 		})
 	}
+}
+
+// WithErrorLogging returns an option that adds the error logging middleware to
+// the server.
+func WithErrorLogging(logger logging.Logger) ServerOption {
+	return WithMiddleware(ErrorLoggingMiddleware(logger))
 }

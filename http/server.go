@@ -17,6 +17,7 @@ package http
 import (
 	"context"
 	"errors"
+	"net"
 	ht "net/http"
 	"time"
 
@@ -35,6 +36,8 @@ type Server struct {
 	logger logging.Logger
 	// middleware is the middleware for the server.
 	middleware []Middleware
+	// listener is the listener for the server.
+	listener net.Listener
 }
 
 // ServerOption is an option for the HTTP server.
@@ -48,7 +51,18 @@ func WithAddress(addr string) ServerOption {
 	}
 }
 
-// WithShutdownTimeout returns an option that sets the timeout for graceful shutdown.
+// WithListener returns an option that sets the listener for the server.
+// This is useful if you want to bind to ":0" and then get the actual port
+// that was bound to from the listener.
+func WithListener(listener net.Listener) ServerOption {
+	return func(s *Server) error {
+		s.listener = listener
+		return nil
+	}
+}
+
+// WithShutdownTimeout returns an option that sets the timeout for graceful
+// shutdown. The default is 5 seconds.
 func WithShutdownTimeout(timeout time.Duration) ServerOption {
 	return func(s *Server) error {
 		s.shutdownTimeout = timeout
@@ -77,10 +91,7 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 
 // Handle registers the handler for the given pattern.
 func (s *Server) Handle(pattern string, handler ht.Handler) {
-	for i := len(s.middleware) - 1; i >= 0; i-- {
-		handler = s.middleware[i](pattern, handler)
-	}
-	s.mux.Handle(pattern, handler)
+	s.mux.Handle(pattern, s.wrapHandler(pattern, handler))
 }
 
 // HandleFunc registers the handler function for the given pattern.
@@ -105,18 +116,25 @@ func (s *Server) Run(ctx context.Context, logger logging.Logger) error {
 		shutdown <- s.server.Shutdown(ctx)
 	}()
 	s.logger.Debugw("starting HTTP server", "addr", s.server.Addr)
-	if err := s.server.ListenAndServe(); err != nil {
-		if !errors.Is(err, ht.ErrServerClosed) {
-			s.logger.Errorw("HTTP server error", "err", err)
-			return err
-		}
-		return nil
-	}
-	err := <-shutdown
+	err := s.serve(s.listener)
 	if err != nil {
-		s.logger.Errorw("HTTP server shutdown error", "err", err)
-		return err
+		if !errors.Is(err, ht.ErrServerClosed) && err.Error() != "context deadline exceeded" {
+			s.logger.Errorw("HTTP server error", "err", err)
+			shutdown <- err
+		} else {
+			s.logger.Debugw("HTTP server closed")
+			err = nil
+		}
 	}
+	err = <-shutdown
 	s.logger.Debugw("HTTP server stopped")
-	return nil
+	return err
+}
+
+// serve calls Serve or ListenAndServe on the underlying HTTP server.
+func (s *Server) serve(listener net.Listener) error {
+	if listener != nil {
+		return s.server.Serve(listener)
+	}
+	return s.server.ListenAndServe()
 }

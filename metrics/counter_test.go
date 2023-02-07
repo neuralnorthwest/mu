@@ -38,7 +38,7 @@ func overrideBugHandler(t *testing.T, bugMessage *string) func() {
 // without labels.
 func Test_NewCounter(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test")
 	if c == nil {
 		t.Fatal("NewCounter returned nil")
@@ -52,7 +52,7 @@ func Test_NewCounter(t *testing.T) {
 // with labels.
 func Test_NewCounter_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	if c == nil {
 		t.Fatal("NewCounter returned nil")
@@ -65,7 +65,7 @@ func Test_NewCounter_WithLabels(t *testing.T) {
 // Test_Counter_Inc tests that Inc increments the counter.
 func Test_Counter_Inc(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test")
 	c.Inc()
 }
@@ -73,7 +73,7 @@ func Test_Counter_Inc(t *testing.T) {
 // Test_Counter_Add tests that Add increments the counter.
 func Test_Counter_Add(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test")
 	c.Add(1)
 }
@@ -82,7 +82,7 @@ func Test_Counter_Add(t *testing.T) {
 // labels.
 func Test_Counter_Inc_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	c.Inc("value")
 }
@@ -91,7 +91,7 @@ func Test_Counter_Inc_WithLabels(t *testing.T) {
 // labels.
 func Test_Counter_Add_WithLabels(t *testing.T) {
 	t.Parallel()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	c.Add(1, "value")
 }
@@ -101,7 +101,7 @@ func Test_Counter_Add_WithLabels(t *testing.T) {
 func Test_Counter_Inc_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test")
 	c.Inc("value")
 	if bugMsg == "" {
@@ -114,7 +114,7 @@ func Test_Counter_Inc_Failed_WithLabels(t *testing.T) {
 func Test_Counter_Add_Failed_WithLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test")
 	c.Add(1, "value")
 	if bugMsg == "" {
@@ -127,7 +127,7 @@ func Test_Counter_Add_Failed_WithLabels(t *testing.T) {
 func Test_Counter_Inc_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	c.Inc()
 	if bugMsg == "" {
@@ -140,7 +140,7 @@ func Test_Counter_Inc_Failed_WithoutLabels(t *testing.T) {
 func Test_Counter_Add_Failed_WithoutLabels(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	c := m.NewCounter("test", "test", "label")
 	c.Add(1)
 	if bugMsg == "" {
@@ -153,7 +153,7 @@ func Test_Counter_Add_Failed_WithoutLabels(t *testing.T) {
 func Test_Counter_Register_WithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("test", "test")
 	m.NewCounter("test", "test")
 	if bugMsg == "" {
@@ -166,7 +166,7 @@ func Test_Counter_Register_WithoutLabels_Twice(t *testing.T) {
 func Test_Counter_Register_WithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("test", "test", "label")
 	m.NewCounter("test", "test", "label")
 	if bugMsg == "" {
@@ -180,7 +180,7 @@ func Test_Counter_Register_WithLabels_Twice(t *testing.T) {
 func Test_Counter_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("test", "test")
 	m.NewCounter("test", "test", "label")
 	if bugMsg == "" {
@@ -194,7 +194,7 @@ func Test_Counter_Register_WithAndWithoutLabels_Twice(t *testing.T) {
 func Test_Counter_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("test", "test", "label")
 	m.NewCounter("test", "test")
 	if bugMsg == "" {
@@ -208,7 +208,7 @@ func Test_Counter_Register_WithoutAndWithLabels_Twice(t *testing.T) {
 func Test_Counter_Register_WithDifferentLabels_Twice(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("test", "test", "label")
 	m.NewCounter("test", "test", "label2")
 	if bugMsg == "" {
@@ -221,7 +221,7 @@ func Test_Counter_Register_WithDifferentLabels_Twice(t *testing.T) {
 func Test_Counter_Register_WithoutLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("", "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
@@ -233,9 +233,23 @@ func Test_Counter_Register_WithoutLabels_PrometheusRegistration_Failed(t *testin
 func Test_Counter_Register_WithLabels_PrometheusRegistration_Failed(t *testing.T) {
 	var bugMsg string
 	defer overrideBugHandler(t, &bugMsg)()
-	m := New()
+	m := newMetrics(t)
 	m.NewCounter("", "", "")
 	if bugMsg == "" {
 		t.Fatal("bug handler was not called")
 	}
+}
+
+// Test_Counter_Dummy tests the dummy counter that is returned if an error
+// occurs.
+func Test_Counter_Dummy(t *testing.T) {
+	var bugMsg string
+	defer overrideBugHandler(t, &bugMsg)()
+	m := newMetrics(t)
+	c := m.NewCounter("", "", "")
+	if bugMsg == "" {
+		t.Fatal("bug handler was not called")
+	}
+	c.Inc()
+	c.Add(1)
 }
