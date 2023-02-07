@@ -1,3 +1,7 @@
+## v0.1.9
+
+* Mu now has a CODE_OF_CONDUCT.md and CONTRIBUTING.md.
+
 ## v0.1.8
 
 * OpenTelemetry tracing via `WithOpenTelemetryTracing` http.ServerOption.
