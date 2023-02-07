@@ -41,51 +41,33 @@ type Server struct {
 }
 
 // ServerOption is an option for the HTTP server.
-// type ServerOption func(*Server) error
-type ServerOption interface {
-	apply(*Server) error
-}
-
-// funcOption is an option that wraps a function.
-type funcOption struct {
-	f func(*Server) error
-}
-
-// newFuncOption returns a new funcOption.
-func newFuncOption(f func(*Server) error) *funcOption {
-	return &funcOption{f: f}
-}
-
-// apply calls the wrapped function.
-func (o funcOption) apply(s *Server) error {
-	return o.f(s)
-}
+type ServerOption func(*Server) error
 
 // WithAddress returns an option that sets the address to listen on.
 func WithAddress(addr string) ServerOption {
-	return newFuncOption(func(s *Server) error {
+	return func(s *Server) error {
 		s.server.Addr = addr
 		return nil
-	})
+	}
 }
 
 // WithListener returns an option that sets the listener for the server.
 // This is useful if you want to bind to ":0" and then get the actual port
 // that was bound to from the listener.
 func WithListener(listener net.Listener) ServerOption {
-	return newFuncOption(func(s *Server) error {
+	return func(s *Server) error {
 		s.listener = listener
 		return nil
-	})
+	}
 }
 
 // WithShutdownTimeout returns an option that sets the timeout for graceful
 // shutdown. The default is 5 seconds.
 func WithShutdownTimeout(timeout time.Duration) ServerOption {
-	return newFuncOption(func(s *Server) error {
+	return func(s *Server) error {
 		s.shutdownTimeout = timeout
 		return nil
-	})
+	}
 }
 
 // NewServer creates a new HTTP server.
@@ -100,7 +82,7 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 		shutdownTimeout: 5 * time.Second,
 	}
 	for _, o := range opts {
-		if err := o.apply(s); err != nil {
+		if err := o(s); err != nil {
 			return nil, err
 		}
 	}

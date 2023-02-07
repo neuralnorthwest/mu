@@ -71,8 +71,8 @@ func MetricsMiddleware(met metrics.Metrics, opts MetricsOptions) Middleware {
 // the server.
 func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions) ServerOption {
 	middleware := MetricsMiddleware(met, opts)
-	return newFuncOption(func(server *Server) error {
-		err := WithMiddleware(middleware).apply(server)
+	return func(server *Server) error {
+		err := WithMiddleware(middleware)(server)
 		if err != nil {
 			return err
 		}
@@ -85,5 +85,5 @@ func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions
 		}
 		server.Handle(path, promhttp.InstrumentMetricHandler(metrics.PrometheusRegistry(met), met.Handler(logger)))
 		return nil
-	})
+	}
 }
