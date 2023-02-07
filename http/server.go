@@ -38,6 +38,8 @@ type Server struct {
 	middleware []Middleware
 	// listener is the listener for the server.
 	listener net.Listener
+	// tlsConfig is the TLS configuration for the server.
+	tlsConfig *tlsConfig
 }
 
 // ServerOption is an option for the HTTP server.
@@ -131,10 +133,16 @@ func (s *Server) Run(ctx context.Context, logger logging.Logger) error {
 	return err
 }
 
-// serve calls Serve or ListenAndServe on the underlying HTTP server.
+// serve calls the appropriate Serve method on the underlying HTTP server.
 func (s *Server) serve(listener net.Listener) error {
 	if listener != nil {
+		if s.tlsConfig != nil {
+			return s.server.ServeTLS(listener, s.tlsConfig.certFile, s.tlsConfig.keyFile)
+		}
 		return s.server.Serve(listener)
+	}
+	if s.tlsConfig != nil {
+		return s.server.ListenAndServeTLS(s.tlsConfig.certFile, s.tlsConfig.keyFile)
 	}
 	return s.server.ListenAndServe()
 }
