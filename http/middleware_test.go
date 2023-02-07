@@ -74,6 +74,8 @@ func Test_Middleware(t *testing.T) {
 				opts = append(opts, WithMiddleware(middlewareTest(name, track)))
 			}
 			opts = append(opts, WithListener(listener))
+			// This server is used to check initialization - it will not be
+			// started.
 			srv, err := NewServer(opts...)
 			if err != nil {
 				t.Fatalf("NewServer() error = %v", err)
