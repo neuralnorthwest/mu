@@ -222,9 +222,9 @@ func Test_Server_WithShutdownTimeout(t *testing.T) {
 // returns an error.
 func Test_Server_OptionError(t *testing.T) {
 	t.Parallel()
-	_, err := NewServer(func(*Server) error {
+	_, err := NewServer(newFuncOption(func(*Server) error {
 		return errors.New("error")
-	})
+	}))
 	if err == nil {
 		t.Fatalf("expected error")
 	}

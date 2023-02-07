@@ -24,11 +24,11 @@ type Middleware func(pattern string, next ht.Handler) ht.Handler
 // WithMiddleware returns an option that adds the given middleware to the server.
 // The first middleware in the list is the outermost middleware.
 func WithMiddleware(m Middleware, more ...Middleware) ServerOption {
-	return func(s *Server) error {
+	return newFuncOption(func(s *Server) error {
 		s.middleware = append(s.middleware, m)
 		s.middleware = append(s.middleware, more...)
 		return nil
-	}
+	})
 }
 
 // wrapHandler wraps the given handler with the middleware.
