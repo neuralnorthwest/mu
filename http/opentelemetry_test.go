@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"io"
-	"net/http"
 	ht "net/http"
 	"net/http/httptest"
 	"testing"
@@ -60,16 +59,16 @@ func Test_OpenTelemetryTracing(t *testing.T) {
 	otel.SetTracerProvider(provider)
 
 	middleware := OpenTelemetryTracingMiddleware()
-	handler := middleware("/test", ht.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
+	handler := middleware("/test", ht.HandlerFunc(func(w ht.ResponseWriter, r *ht.Request) {
+		w.WriteHeader(ht.StatusOK)
 		_, _ = w.Write([]byte("OK"))
 	}))
 	req := httptest.NewRequest("GET", "/test", nil)
 	rr := httptest.NewRecorder()
 	handler.ServeHTTP(rr, req)
 	defer rr.Result().Body.Close()
-	if rr.Result().StatusCode != http.StatusOK {
-		t.Fatalf("expected status code %d, got %d", http.StatusOK, rr.Result().StatusCode)
+	if rr.Result().StatusCode != ht.StatusOK {
+		t.Fatalf("expected status code %d, got %d", ht.StatusOK, rr.Result().StatusCode)
 	}
 	if rr.Result().Body == nil {
 		t.Fatalf("expected a response body, got nil")
@@ -117,7 +116,7 @@ func Test_OpenTelemetryTracing(t *testing.T) {
 		if attrMap["Key"] == "http.status_code" {
 			valueMap := attrMap["Value"].(map[string]interface{})
 			assert.Equal(t, "INT64", valueMap["Type"].(string))
-			assert.Equal(t, float64(http.StatusOK), valueMap["Value"].(float64))
+			assert.Equal(t, float64(ht.StatusOK), valueMap["Value"].(float64))
 			gotStatusCode = true
 		}
 		if attrMap["Key"] == "http.wrote_bytes" {
