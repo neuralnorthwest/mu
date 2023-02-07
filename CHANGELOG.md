@@ -1,7 +1,11 @@
 ## v0.1.7
 
-TODO
-* More testing
+* Metrics improvements
+* Lots more tests
+
+* Bug fixes:
+  * `http.ErrorLoggingMiddleware` now correctly logs the error.
+  * Fixes to `Run` method of `http.Server`.
 
 ## v0.1.6
 
