@@ -14,7 +14,7 @@
 
 package mu
 
-const version = "v0.1.7"
+const version = "v0.1.8"
 const _ = version
 
 // Version returns the version of mu.
