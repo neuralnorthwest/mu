@@ -1,6 +1,7 @@
 ## v0.1.8
 
-TODO
+* OpenTelemetry tracing via `WithOpenTelemetryTracing` http.ServerOption.
+* TLS support via `WithTLS` http.ServerOption.
 
 ## v0.1.7
 
