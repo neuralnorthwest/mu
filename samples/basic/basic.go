@@ -29,10 +29,10 @@ import (
 //  - Define BasicApp, which embeds an instance of service.Service
 //  - Define newBasicApp, which initializes the application:
 //    - Create a new service.Service
-//    - Register the configuration setup hook `configSetup`
+//    - Register the configuration setup hook `setupConfig`
 //    - Register the worker setup hook `setupWorkers`
 //    - Register the cleanup hook `cleanup`
-//  - Define configSetup, which sets up the configuration:
+//  - Define setupConfig, which sets up the configuration:
 //    - Create a new string configuration variable `MESSAGE`
 //  - Define setupWorkers, which sets up the application workers:
 //    - Create a new HTTP server

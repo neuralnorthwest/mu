@@ -55,8 +55,8 @@ func Test_hooks_InvokeCleanup(t *testing.T) {
 	}
 }
 
-// Test_hooks_InvokeConfigSetup tests that the config setup hook is invoked.
-func Test_hooks_InvokeConfigSetup(t *testing.T) {
+// Test_hooks_InvokeSetupConfig tests that the config setup hook is invoked.
+func Test_hooks_InvokeSetupConfig(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
