@@ -66,10 +66,13 @@ type Test_run_Hooks_Case struct {
 	name                  string
 	cleanupErr            error
 	configSetupErr        error
+	prerunErr             error
 	setupErr              error
 	setupHTTPErr          error
+	expectedErr           string
 	cleanupWasInvoked     bool
 	configSetupWasInvoked bool
+	prerunWasInvoked      bool
 	setupWasInvoked       bool
 	setupHTTPWasInvoked   bool
 }
@@ -82,43 +85,68 @@ func Test_run_Hooks(t *testing.T) {
 			name:                  "no errors",
 			cleanupErr:            nil,
 			configSetupErr:        nil,
+			prerunErr:             nil,
 			setupErr:              nil,
 			setupHTTPErr:          nil,
 			cleanupWasInvoked:     true,
 			configSetupWasInvoked: true,
+			prerunWasInvoked:      true,
 			setupWasInvoked:       true,
 			setupHTTPWasInvoked:   true,
 		},
 		{
 			name:                  "cleanup error",
-			cleanupErr:            status.ErrInvalidArgument,
+			cleanupErr:            fmt.Errorf("cleanup error"),
 			configSetupErr:        nil,
+			prerunErr:             nil,
 			setupErr:              nil,
 			setupHTTPErr:          nil,
+			expectedErr:           "cleanup error",
 			cleanupWasInvoked:     true,
 			configSetupWasInvoked: true,
+			prerunWasInvoked:      true,
 			setupWasInvoked:       true,
 			setupHTTPWasInvoked:   true,
 		},
 		{
 			name:                  "config setup error",
 			cleanupErr:            nil,
-			configSetupErr:        status.ErrInvalidArgument,
+			configSetupErr:        fmt.Errorf("config setup error"),
+			prerunErr:             nil,
 			setupErr:              nil,
 			setupHTTPErr:          nil,
+			expectedErr:           "config setup error",
 			cleanupWasInvoked:     false,
 			configSetupWasInvoked: true,
+			prerunWasInvoked:      false,
 			setupWasInvoked:       false,
 			setupHTTPWasInvoked:   false,
+		},
+		{
+			name:                  "prerun error",
+			cleanupErr:            nil,
+			configSetupErr:        nil,
+			prerunErr:             fmt.Errorf("prerun error"),
+			setupErr:              nil,
+			setupHTTPErr:          nil,
+			expectedErr:           "prerun error",
+			cleanupWasInvoked:     true,
+			configSetupWasInvoked: true,
+			prerunWasInvoked:      true,
+			setupWasInvoked:       true,
+			setupHTTPWasInvoked:   true,
 		},
 		{
 			name:                  "setup error",
 			cleanupErr:            nil,
 			configSetupErr:        nil,
-			setupErr:              status.ErrInvalidArgument,
+			prerunErr:             nil,
+			setupErr:              fmt.Errorf("setup error"),
 			setupHTTPErr:          nil,
+			expectedErr:           "setup error",
 			cleanupWasInvoked:     false,
 			configSetupWasInvoked: true,
+			prerunWasInvoked:      false,
 			setupWasInvoked:       true,
 			setupHTTPWasInvoked:   false,
 		},
@@ -126,59 +154,73 @@ func Test_run_Hooks(t *testing.T) {
 			name:                  "setup HTTP error",
 			cleanupErr:            nil,
 			configSetupErr:        nil,
+			prerunErr:             nil,
 			setupErr:              nil,
-			setupHTTPErr:          status.ErrInvalidArgument,
-			cleanupWasInvoked:     false,
+			setupHTTPErr:          fmt.Errorf("setup HTTP error"),
+			expectedErr:           "setup HTTP error",
+			cleanupWasInvoked:     true,
 			configSetupWasInvoked: true,
+			prerunWasInvoked:      false,
 			setupWasInvoked:       true,
 			setupHTTPWasInvoked:   true,
 		},
 	}
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
 			svc, err := New("test-service")
 			if err != nil {
 				t.Fatalf("New returned an error: %v", err)
 			}
 			cleanupWasInvoked := false
 			configSetupWasInvoked := false
+			prerunWasInvoked := false
 			setupWasInvoked := false
 			setupHTTPWasInvoked := false
 			svc.Cleanup(func() error {
 				cleanupWasInvoked = true
-				return testCase.cleanupErr
+				return tc.cleanupErr
 			})
 			svc.ConfigSetup(func(config.Config) error {
 				configSetupWasInvoked = true
-				return testCase.configSetupErr
+				return tc.configSetupErr
+			})
+			svc.PreRun(func() error {
+				prerunWasInvoked = true
+				// Cancel the context so that Run returns.
+				svc.Cancel()
+				return tc.prerunErr
 			})
 			svc.Setup(func(worker.Group) error {
 				setupWasInvoked = true
-				return testCase.setupErr
+				return tc.setupErr
 			})
 			svc.SetupHTTP(func(*http.Server) error {
 				setupHTTPWasInvoked = true
-				return testCase.setupHTTPErr
+				return tc.setupHTTPErr
 			})
-			expectedErr := testCase.cleanupErr != nil || testCase.configSetupErr != nil || testCase.setupErr != nil || testCase.setupHTTPErr != nil
-			svc.stopImmediately = true
 			err = svc.Run()
-			if expectedErr && err == nil {
-				t.Errorf("Run did not return an error")
-			}
-			if !expectedErr && err != nil {
+			if tc.expectedErr != "" {
+				if err == nil {
+					t.Errorf("Run did not return an error")
+				} else if err.Error() != tc.expectedErr {
+					t.Errorf("Run returned an unexpected error: %v but expected %v", err, tc.expectedErr)
+				}
+			} else if err != nil {
 				t.Errorf("Run returned an error: %v", err)
 			}
-			if cleanupWasInvoked != testCase.cleanupWasInvoked {
+			if cleanupWasInvoked != tc.cleanupWasInvoked {
 				t.Errorf("cleanup hook was invoked: %t", cleanupWasInvoked)
 			}
-			if configSetupWasInvoked != testCase.configSetupWasInvoked {
+			if configSetupWasInvoked != tc.configSetupWasInvoked {
 				t.Errorf("config setup hook was invoked: %t", configSetupWasInvoked)
 			}
-			if setupWasInvoked != testCase.setupWasInvoked {
+			if prerunWasInvoked != tc.prerunWasInvoked {
+				t.Errorf("prerun hook was invoked: %t", prerunWasInvoked)
+			}
+			if setupWasInvoked != tc.setupWasInvoked {
 				t.Errorf("setup hook was invoked: %t", setupWasInvoked)
 			}
-			if setupHTTPWasInvoked != testCase.setupHTTPWasInvoked {
+			if setupHTTPWasInvoked != tc.setupHTTPWasInvoked {
 				t.Errorf("setup HTTP hook was invoked: %t", setupHTTPWasInvoked)
 			}
 		})

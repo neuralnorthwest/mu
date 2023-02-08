@@ -24,7 +24,7 @@ import (
 )
 
 // Run runs the service.
-func (s *Service) Run() error {
+func (s *Service) Run() (status error) {
 	if s.MockMode() {
 		s.logger.Info("running in mock mode")
 	}
@@ -37,6 +37,12 @@ func (s *Service) Run() error {
 	if err := s.invokeSetup(workerGroup); err != nil {
 		return err
 	}
+	defer func() {
+		err := s.invokeCleanup()
+		if status == nil {
+			status = err
+		}
+	}()
 	if httpServer, err := s.invokeSetupHTTP(); err != nil {
 		return err
 	} else if httpServer != nil {
@@ -45,19 +51,14 @@ func (s *Service) Run() error {
 		}
 	}
 	s.startInterruptListener(s.ctx, s.logger, s.cancel)
-	if s.stopImmediately {
-		s.logger.Info("stopping immediately")
-		s.cancel()
+	if err := s.invokePreRun(); err != nil {
+		return err
 	}
 	werr := workerGroup.Run(s.ctx, s.logger)
-	cerr := s.invokeCleanup()
 	if werr != nil {
 		return werr
 	}
-	if cerr != nil {
-		return cerr
-	}
-	return nil
+	return
 }
 
 // startInterruptListener starts the interrupt listener. This registers a

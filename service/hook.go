@@ -26,6 +26,9 @@ type CleanupFunc func() error
 // ConfigSetupFunc is a function that sets up a service configuration.
 type ConfigSetupFunc func(c config.Config) error
 
+// PreRunFunc is a function that runs before the workers are started.
+type PreRunFunc func() error
+
 // SetupFunc is a function that sets up a service.
 type SetupFunc func(workerGroup worker.Group) error
 
@@ -35,11 +38,13 @@ type SetupHTTPFunc func(server *http.Server) error
 type Hooks interface {
 	Cleanup(f CleanupFunc)
 	ConfigSetup(f ConfigSetupFunc)
+	PreRun(f PreRunFunc)
 	Setup(f SetupFunc)
 	SetupHTTP(f SetupHTTPFunc)
 
 	invokeCleanup() error
 	invokeConfigSetup(c config.Config) error
+	invokePreRun() error
 	invokeSetup(workerGroup worker.Group) error
 	invokeSetupHTTP() (*http.Server, error)
 }
@@ -50,6 +55,8 @@ type hookstruct struct {
 	cleanup CleanupFunc
 	// configSetup is the setup configuration hook.
 	configSetup ConfigSetupFunc
+	// prerun is the prerun hook.
+	prerun PreRunFunc
 	// setup is the setup hook.
 	setup SetupFunc
 	// setupHTTP is the setup HTTP hook.
@@ -69,6 +76,11 @@ func (h *hookstruct) Cleanup(f CleanupFunc) {
 // SetupConfig registers a setup configuration hook.
 func (h *hookstruct) ConfigSetup(f ConfigSetupFunc) {
 	h.configSetup = f
+}
+
+// PreRun registers a prerun hook.
+func (h *hookstruct) PreRun(f PreRunFunc) {
+	h.prerun = f
 }
 
 // Setup registers a setup hook.
@@ -93,6 +105,14 @@ func (h *hookstruct) invokeCleanup() error {
 func (h *hookstruct) invokeConfigSetup(c config.Config) error {
 	if h.configSetup != nil {
 		return h.configSetup(c)
+	}
+	return nil
+}
+
+// invokePreRun invokes the prerun hook.
+func (h *hookstruct) invokePreRun() error {
+	if h.prerun != nil {
+		return h.prerun()
 	}
 	return nil
 }
