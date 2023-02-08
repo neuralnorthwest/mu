@@ -62,7 +62,7 @@ func main() {
     the framework. Hooks are called at specific points in the lifecycle of a
     microservice. You can use hooks to add custom functionality to your
     microservice. The example above uses two hooks, `ConfigSetup` and
-	`SetupWorkers`.
+    `SetupWorkers`.
 -   **Configuration** - Mu is designed to be configured using environment
     variables. This allows you to easily configure your microservice using
     Docker, Kubernetes, or any other container orchestration system.
