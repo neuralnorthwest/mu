@@ -41,7 +41,7 @@ func Test_Main(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New returned an error: %v", err)
 	}
-	svc.Setup(func(group worker.Group) error {
+	svc.SetupWorkers(func(group worker.Group) error {
 		return group.Add("worker", &testTraceWorker{ran: &workerRan})
 	})
 	if err := svc.Main(); err != nil {

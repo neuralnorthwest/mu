@@ -30,7 +30,7 @@ func Test_hooks_NoHooks(t *testing.T) {
 	if err := h.invokeConfigSetup(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if err := h.invokeSetup(nil); err != nil {
+	if err := h.invokeSetupWorkers(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if err := h.invokeCleanup(); err != nil {
@@ -89,20 +89,20 @@ func Test_hooks_InvokePreRun(t *testing.T) {
 	}
 }
 
-// Test_hooks_InvokeSetup tests that the setup hook is invoked.
-func Test_hooks_InvokeSetup(t *testing.T) {
+// Test_hooks_InvokeSetupWorkers tests that the setupWorkers hook is invoked.
+func Test_hooks_InvokeSetupWorkers(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.Setup(func(workerGroup worker.Group) error {
+	h.SetupWorkers(func(workerGroup worker.Group) error {
 		wasInvoked = true
 		return nil
 	})
-	if err := h.invokeSetup(nil); err != nil {
+	if err := h.invokeSetupWorkers(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if !wasInvoked {
-		t.Error("expected setup hook to be invoked")
+		t.Error("expected setupWorkers hook to be invoked")
 	}
 }
 

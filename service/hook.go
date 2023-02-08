@@ -29,8 +29,8 @@ type ConfigSetupFunc func(c config.Config) error
 // PreRunFunc is a function that runs before the workers are started.
 type PreRunFunc func() error
 
-// SetupFunc is a function that sets up a service.
-type SetupFunc func(workerGroup worker.Group) error
+// SetupWorkersFunc is a function that sets up workers for the service.
+type SetupWorkersFunc func(workerGroup worker.Group) error
 
 // SetupHTTPFunc is a function that sets up a service HTTP server.
 type SetupHTTPFunc func(server *http.Server) error
@@ -39,13 +39,13 @@ type Hooks interface {
 	Cleanup(f CleanupFunc)
 	ConfigSetup(f ConfigSetupFunc)
 	PreRun(f PreRunFunc)
-	Setup(f SetupFunc)
+	SetupWorkers(f SetupWorkersFunc)
 	SetupHTTP(f SetupHTTPFunc)
 
 	invokeCleanup() error
 	invokeConfigSetup(c config.Config) error
 	invokePreRun() error
-	invokeSetup(workerGroup worker.Group) error
+	invokeSetupWorkers(workerGroup worker.Group) error
 	invokeSetupHTTP() (*http.Server, error)
 }
 
@@ -57,8 +57,8 @@ type hookstruct struct {
 	configSetup ConfigSetupFunc
 	// prerun is the prerun hook.
 	prerun PreRunFunc
-	// setup is the setup hook.
-	setup SetupFunc
+	// setupWorkers is the setupWorkers hook.
+	setupWorkers SetupWorkersFunc
 	// setupHTTP is the setup HTTP hook.
 	setupHTTP SetupHTTPFunc
 	// httpNewServer is a function that creates a new HTTP server. This is used
@@ -73,7 +73,7 @@ func (h *hookstruct) Cleanup(f CleanupFunc) {
 	h.cleanup = f
 }
 
-// SetupConfig registers a setup configuration hook.
+// ConfigSetup registers a configuration setup hook.
 func (h *hookstruct) ConfigSetup(f ConfigSetupFunc) {
 	h.configSetup = f
 }
@@ -83,9 +83,9 @@ func (h *hookstruct) PreRun(f PreRunFunc) {
 	h.prerun = f
 }
 
-// Setup registers a setup hook.
-func (h *hookstruct) Setup(f SetupFunc) {
-	h.setup = f
+// SetupWorkers registers a worker setup hook.
+func (h *hookstruct) SetupWorkers(f SetupWorkersFunc) {
+	h.setupWorkers = f
 }
 
 // SetupHTTP registers a setup HTTP hook.
@@ -117,10 +117,10 @@ func (h *hookstruct) invokePreRun() error {
 	return nil
 }
 
-// invokeSetup invokes the setup hook.
-func (h *hookstruct) invokeSetup(workerGroup worker.Group) error {
-	if h.setup != nil {
-		return h.setup(workerGroup)
+// invokeSetupWorkers invokes the setup hook.
+func (h *hookstruct) invokeSetupWorkers(workerGroup worker.Group) error {
+	if h.setupWorkers != nil {
+		return h.setupWorkers(workerGroup)
 	}
 	return nil
 }

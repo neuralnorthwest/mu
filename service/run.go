@@ -34,7 +34,7 @@ func (s *Service) Run() (status error) {
 		return err
 	}
 	workerGroup := worker.NewGroup()
-	if err := s.invokeSetup(workerGroup); err != nil {
+	if err := s.invokeSetupWorkers(workerGroup); err != nil {
 		return err
 	}
 	defer func() {

@@ -1,6 +1,10 @@
 ## v0.1.10
 
-TODO
+* New `PreRun` hook can be used to register a function to run immediately
+  before worker start.
+* The `Setup` hook has been renamed to `SetupWorkers`. **This is a breaking
+  change.** To upgrade, call `SetupWorkers` instead of `Setup` in your
+  application.
 
 ## v0.1.9
 

@@ -63,18 +63,18 @@ func Test_run_MockMode(t *testing.T) {
 // Test_run_Hooks_Case is a test case for Test_run_Hooks. It indicates which,
 // if any, hooks should return errors.
 type Test_run_Hooks_Case struct {
-	name                  string
-	cleanupErr            error
-	configSetupErr        error
-	prerunErr             error
-	setupErr              error
-	setupHTTPErr          error
-	expectedErr           string
-	cleanupWasInvoked     bool
-	configSetupWasInvoked bool
-	prerunWasInvoked      bool
-	setupWasInvoked       bool
-	setupHTTPWasInvoked   bool
+	name                   string
+	cleanupErr             error
+	configSetupErr         error
+	prerunErr              error
+	setupWorkersErr        error
+	setupHTTPErr           error
+	expectedErr            string
+	cleanupWasInvoked      bool
+	configSetupWasInvoked  bool
+	prerunWasInvoked       bool
+	setupWorkersWasInvoked bool
+	setupHTTPWasInvoked    bool
 }
 
 // Test_run_Hooks tests that the service runs with hooks.
@@ -82,87 +82,87 @@ func Test_run_Hooks(t *testing.T) {
 	t.Parallel()
 	testCases := []Test_run_Hooks_Case{
 		{
-			name:                  "no errors",
-			cleanupErr:            nil,
-			configSetupErr:        nil,
-			prerunErr:             nil,
-			setupErr:              nil,
-			setupHTTPErr:          nil,
-			cleanupWasInvoked:     true,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      true,
-			setupWasInvoked:       true,
-			setupHTTPWasInvoked:   true,
+			name:                   "no errors",
+			cleanupErr:             nil,
+			configSetupErr:         nil,
+			prerunErr:              nil,
+			setupWorkersErr:        nil,
+			setupHTTPErr:           nil,
+			cleanupWasInvoked:      true,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       true,
+			setupWorkersWasInvoked: true,
+			setupHTTPWasInvoked:    true,
 		},
 		{
-			name:                  "cleanup error",
-			cleanupErr:            fmt.Errorf("cleanup error"),
-			configSetupErr:        nil,
-			prerunErr:             nil,
-			setupErr:              nil,
-			setupHTTPErr:          nil,
-			expectedErr:           "cleanup error",
-			cleanupWasInvoked:     true,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      true,
-			setupWasInvoked:       true,
-			setupHTTPWasInvoked:   true,
+			name:                   "cleanup error",
+			cleanupErr:             fmt.Errorf("cleanup error"),
+			configSetupErr:         nil,
+			prerunErr:              nil,
+			setupWorkersErr:        nil,
+			setupHTTPErr:           nil,
+			expectedErr:            "cleanup error",
+			cleanupWasInvoked:      true,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       true,
+			setupWorkersWasInvoked: true,
+			setupHTTPWasInvoked:    true,
 		},
 		{
-			name:                  "config setup error",
-			cleanupErr:            nil,
-			configSetupErr:        fmt.Errorf("config setup error"),
-			prerunErr:             nil,
-			setupErr:              nil,
-			setupHTTPErr:          nil,
-			expectedErr:           "config setup error",
-			cleanupWasInvoked:     false,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      false,
-			setupWasInvoked:       false,
-			setupHTTPWasInvoked:   false,
+			name:                   "config setup error",
+			cleanupErr:             nil,
+			configSetupErr:         fmt.Errorf("config setup error"),
+			prerunErr:              nil,
+			setupWorkersErr:        nil,
+			setupHTTPErr:           nil,
+			expectedErr:            "config setup error",
+			cleanupWasInvoked:      false,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       false,
+			setupWorkersWasInvoked: false,
+			setupHTTPWasInvoked:    false,
 		},
 		{
-			name:                  "prerun error",
-			cleanupErr:            nil,
-			configSetupErr:        nil,
-			prerunErr:             fmt.Errorf("prerun error"),
-			setupErr:              nil,
-			setupHTTPErr:          nil,
-			expectedErr:           "prerun error",
-			cleanupWasInvoked:     true,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      true,
-			setupWasInvoked:       true,
-			setupHTTPWasInvoked:   true,
+			name:                   "prerun error",
+			cleanupErr:             nil,
+			configSetupErr:         nil,
+			prerunErr:              fmt.Errorf("prerun error"),
+			setupWorkersErr:        nil,
+			setupHTTPErr:           nil,
+			expectedErr:            "prerun error",
+			cleanupWasInvoked:      true,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       true,
+			setupWorkersWasInvoked: true,
+			setupHTTPWasInvoked:    true,
 		},
 		{
-			name:                  "setup error",
-			cleanupErr:            nil,
-			configSetupErr:        nil,
-			prerunErr:             nil,
-			setupErr:              fmt.Errorf("setup error"),
-			setupHTTPErr:          nil,
-			expectedErr:           "setup error",
-			cleanupWasInvoked:     false,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      false,
-			setupWasInvoked:       true,
-			setupHTTPWasInvoked:   false,
+			name:                   "setup workers error",
+			cleanupErr:             nil,
+			configSetupErr:         nil,
+			prerunErr:              nil,
+			setupWorkersErr:        fmt.Errorf("setup workers error"),
+			setupHTTPErr:           nil,
+			expectedErr:            "setup workers error",
+			cleanupWasInvoked:      false,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       false,
+			setupWorkersWasInvoked: true,
+			setupHTTPWasInvoked:    false,
 		},
 		{
-			name:                  "setup HTTP error",
-			cleanupErr:            nil,
-			configSetupErr:        nil,
-			prerunErr:             nil,
-			setupErr:              nil,
-			setupHTTPErr:          fmt.Errorf("setup HTTP error"),
-			expectedErr:           "setup HTTP error",
-			cleanupWasInvoked:     true,
-			configSetupWasInvoked: true,
-			prerunWasInvoked:      false,
-			setupWasInvoked:       true,
-			setupHTTPWasInvoked:   true,
+			name:                   "setup HTTP error",
+			cleanupErr:             nil,
+			configSetupErr:         nil,
+			prerunErr:              nil,
+			setupWorkersErr:        nil,
+			setupHTTPErr:           fmt.Errorf("setup HTTP error"),
+			expectedErr:            "setup HTTP error",
+			cleanupWasInvoked:      true,
+			configSetupWasInvoked:  true,
+			prerunWasInvoked:       false,
+			setupWorkersWasInvoked: true,
+			setupHTTPWasInvoked:    true,
 		},
 	}
 	for _, tc := range testCases {
@@ -174,7 +174,7 @@ func Test_run_Hooks(t *testing.T) {
 			cleanupWasInvoked := false
 			configSetupWasInvoked := false
 			prerunWasInvoked := false
-			setupWasInvoked := false
+			setupWorkersWasInvoked := false
 			setupHTTPWasInvoked := false
 			svc.Cleanup(func() error {
 				cleanupWasInvoked = true
@@ -190,9 +190,9 @@ func Test_run_Hooks(t *testing.T) {
 				svc.Cancel()
 				return tc.prerunErr
 			})
-			svc.Setup(func(worker.Group) error {
-				setupWasInvoked = true
-				return tc.setupErr
+			svc.SetupWorkers(func(worker.Group) error {
+				setupWorkersWasInvoked = true
+				return tc.setupWorkersErr
 			})
 			svc.SetupHTTP(func(*http.Server) error {
 				setupHTTPWasInvoked = true
@@ -217,8 +217,8 @@ func Test_run_Hooks(t *testing.T) {
 			if prerunWasInvoked != tc.prerunWasInvoked {
 				t.Errorf("prerun hook was invoked: %t", prerunWasInvoked)
 			}
-			if setupWasInvoked != tc.setupWasInvoked {
-				t.Errorf("setup hook was invoked: %t", setupWasInvoked)
+			if setupWorkersWasInvoked != tc.setupWorkersWasInvoked {
+				t.Errorf("setup hook was invoked: %t", setupWorkersWasInvoked)
 			}
 			if setupHTTPWasInvoked != tc.setupHTTPWasInvoked {
 				t.Errorf("setup HTTP hook was invoked: %t", setupHTTPWasInvoked)
@@ -296,7 +296,7 @@ func Test_run_Workers(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New returned an error: %v", err)
 			}
-			svc.Setup(func(group worker.Group) error {
+			svc.SetupWorkers(func(group worker.Group) error {
 				for i, w := range testCase.workers {
 					if err := group.Add(fmt.Sprintf("worker-%d", i), w); err != nil {
 						return err
@@ -356,7 +356,7 @@ func Test_run_interrupt(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New returned an error: %v", err)
 	}
-	svc.Setup(func(group worker.Group) error {
+	svc.SetupWorkers(func(group worker.Group) error {
 		return group.Add("wait-worker", newTestWaitWorker(t))
 	})
 	svc.sigChan <- syscall.SIGINT
