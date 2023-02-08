@@ -5,6 +5,9 @@
 ./README.md
 ./service/README.md
 ./config/README.md
+./worker/README.md
 ./CODE_OF_CONDUCT.md
 ./CONTRIBUTING.md
 ./SECURITY.md
+./.github/ISSUE_TEMPLATE/bug_report.md
+./.github/ISSUE_TEMPLATE/feature_request.md
