@@ -21,19 +21,57 @@ import (
 // zapLogger is a logger that uses the zap library.
 type zapLogger struct {
 	*zap.SugaredLogger
+	level zap.AtomicLevel
 }
 
 var _ Logger = (*zapLogger)(nil)
 
 // NewZapLogger creates a new zap logger.
-func NewZapLogger() (Logger, error) {
-	logger, err := zap.NewProduction(zap.AddCallerSkip(1))
+func NewZapLogger(opts ...Option) (Logger, error) {
+	zlogger := &zapLogger{
+		level: zap.NewAtomicLevelAt(zap.InfoLevel),
+	}
+	config := zap.NewProductionConfig()
+	config.Level = zlogger.level
+	logger, err := config.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		return nil, err
 	}
-	return &zapLogger{
-		SugaredLogger: logger.Sugar(),
-	}, nil
+	zlogger.SugaredLogger = logger.Sugar()
+	for _, opt := range opts {
+		opt(zlogger)
+	}
+	return zlogger, nil
+}
+
+// Level returns the current logging level.
+func (l *zapLogger) Level() Level {
+	var level Level
+	switch l.level.Level() {
+	case zap.DebugLevel:
+		level = DebugLevel
+	case zap.InfoLevel:
+		level = InfoLevel
+	case zap.WarnLevel:
+		level = WarnLevel
+	case zap.ErrorLevel:
+		level = ErrorLevel
+	}
+	return level
+}
+
+// SetLevel sets the logging level.
+func (l *zapLogger) SetLevel(level Level) {
+	switch level {
+	case DebugLevel:
+		l.level.SetLevel(zap.DebugLevel)
+	case InfoLevel:
+		l.level.SetLevel(zap.InfoLevel)
+	case WarnLevel:
+		l.level.SetLevel(zap.WarnLevel)
+	case ErrorLevel:
+		l.level.SetLevel(zap.ErrorLevel)
+	}
 }
 
 // GetZap returns the underlying zap logger.

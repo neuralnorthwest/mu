@@ -36,7 +36,7 @@ import (
 
 func main() {
 	s, _ := service.New("hello-service")
-	s.ConfigSetup(func(c config.Config) error {
+	s.SetupConfig(func(c config.Config) error {
 		return c.NewString("MESSAGE", "Hello world!", "The message to print")
 	})
 	s.SetupWorkers(func(g worker.Group) error {
@@ -61,7 +61,7 @@ func main() {
 -   **Hooks** - Mu uses hooks to allow you to easily extend the functionality of
     the framework. Hooks are called at specific points in the lifecycle of a
     microservice. You can use hooks to add custom functionality to your
-    microservice. The example above uses two hooks, `ConfigSetup` and
+    microservice. The example above uses two hooks, `SetupConfig` and
     `SetupWorkers`.
 -   **Configuration** - Mu is designed to be configured using environment
     variables. This allows you to easily configure your microservice using

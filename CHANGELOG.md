@@ -1,3 +1,11 @@
+## v0.1.11
+
+* The `ConfigSetup` hook has been renamed to `SetupConfig`. **This is a
+  breaking change.** To upgrade, call `SetupConfig` instead of `ConfigSetup`
+  in your application.
+* New `Level` and `SetLevel` methods for `logging.Logger`.
+* New `WithLevel` option for `logging.New`.
+
 ## v0.1.10
 
 * New `PreRun` hook can be used to register a function to run immediately

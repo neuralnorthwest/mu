@@ -27,7 +27,7 @@ import (
 func Test_hooks_NoHooks(t *testing.T) {
 	t.Parallel()
 	h := &hookstruct{}
-	if err := h.invokeConfigSetup(nil); err != nil {
+	if err := h.invokeSetupConfig(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if err := h.invokeSetupWorkers(nil); err != nil {
@@ -55,16 +55,16 @@ func Test_hooks_InvokeCleanup(t *testing.T) {
 	}
 }
 
-// Test_hooks_InvokeConfigSetup tests that the config setup hook is invoked.
-func Test_hooks_InvokeConfigSetup(t *testing.T) {
+// Test_hooks_InvokeSetupConfig tests that the config setup hook is invoked.
+func Test_hooks_InvokeSetupConfig(t *testing.T) {
 	t.Parallel()
 	wasInvoked := false
 	h := &hookstruct{}
-	h.ConfigSetup(func(c config.Config) error {
+	h.SetupConfig(func(c config.Config) error {
 		wasInvoked = true
 		return nil
 	})
-	if err := h.invokeConfigSetup(nil); err != nil {
+	if err := h.invokeSetupConfig(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
 	if !wasInvoked {

@@ -30,7 +30,7 @@ func (s *Service) Run() (status error) {
 	}
 	s.ctx, s.cancel = context.WithCancel(context.Background())
 	defer s.cancel()
-	if err := s.invokeConfigSetup(s.config); err != nil {
+	if err := s.invokeSetupConfig(s.config); err != nil {
 		return err
 	}
 	workerGroup := worker.NewGroup()

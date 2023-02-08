@@ -364,6 +364,20 @@ func (mr *MockLoggerMockRecorder) Infow(arg0 interface{}, arg1 ...interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Infow", reflect.TypeOf((*MockLogger)(nil).Infow), varargs...)
 }
 
+// Level mocks base method.
+func (m *MockLogger) Level() logging.Level {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Level")
+	ret0, _ := ret[0].(logging.Level)
+	return ret0
+}
+
+// Level indicates an expected call of Level.
+func (mr *MockLoggerMockRecorder) Level() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Level", reflect.TypeOf((*MockLogger)(nil).Level))
+}
+
 // Panic mocks base method.
 func (m *MockLogger) Panic(arg0 ...interface{}) {
 	m.ctrl.T.Helper()
@@ -428,6 +442,18 @@ func (mr *MockLoggerMockRecorder) Panicw(arg0 interface{}, arg1 ...interface{}) 
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0}, arg1...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Panicw", reflect.TypeOf((*MockLogger)(nil).Panicw), varargs...)
+}
+
+// SetLevel mocks base method.
+func (m *MockLogger) SetLevel(arg0 logging.Level) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "SetLevel", arg0)
+}
+
+// SetLevel indicates an expected call of SetLevel.
+func (mr *MockLoggerMockRecorder) SetLevel(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetLevel", reflect.TypeOf((*MockLogger)(nil).SetLevel), arg0)
 }
 
 // Sync mocks base method.

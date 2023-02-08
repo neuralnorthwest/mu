@@ -16,8 +16,26 @@ package logging
 
 //go:generate go run github.com/golang/mock/mockgen@v1.6.0 -package mock -destination mock/logger.go github.com/neuralnorthwest/mu/logging Logger
 
+// Level is the level of logging.
+type Level int
+
+const (
+	// DebugLevel is the debug level.
+	DebugLevel Level = iota
+	// InfoLevel is the info level.
+	InfoLevel
+	// WarnLevel is the warn level.
+	WarnLevel
+	// ErrorLevel is the error level.
+	ErrorLevel
+)
+
 // Logger is the interface for logging.
 type Logger interface {
+	// Level returns the logging level.
+	Level() Level
+	// SetLevel sets the logging level.
+	SetLevel(level Level)
 	// DPanic logs a panic message and panics in development mode.
 	DPanic(args ...interface{})
 	// DPanicf logs a panic message with formatting and panics in development mode.
@@ -80,7 +98,17 @@ type Logger interface {
 	With(args ...interface{}) Logger
 }
 
+// Option is a function that configures a logger.
+type Option func(Logger)
+
+// WithLevel returns an option that sets the logging level.
+func WithLevel(level Level) Option {
+	return func(logger Logger) {
+		logger.SetLevel(level)
+	}
+}
+
 // New returns a new logger based on zap.
-func New() (Logger, error) {
-	return NewZapLogger()
+func New(opts ...Option) (Logger, error) {
+	return NewZapLogger(opts...)
 }

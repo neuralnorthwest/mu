@@ -42,10 +42,10 @@ import (
 //  - Define BasicApp, which embeds an instance of service.Service
 //  - Define newBasicApp, which initializes the application:
 //    - Create a new service.Service
-//    - Register the configuration setup hook `configSetup`
+//    - Register the configuration setup hook `setupConfig`
 //    - Register the worker setup hook `setupWorkers`
 //    - Register the cleanup hook `cleanup`
-//  - Define configSetup, which sets up the configuration:
+//  - Define setupConfig, which sets up the configuration:
 //    - Create a new string configuration variable `MESSAGE`
 //  - Define setupWorkers, which sets up the application:
 //    - Create a new HTTP server
@@ -72,14 +72,14 @@ func newBasicApp() (*BasicApp, error) {
 	app := &BasicApp{
 		Service: svc,
 	}
-	app.ConfigSetup(app.configSetup)
+	app.SetupConfig(app.setupConfig)
 	app.SetupWorkers(app.setupWorkers)
 	app.Cleanup(app.cleanup)
 	return app, nil
 }
 
-// configSetup sets up the configuration.
-func (a *BasicApp) configSetup(c config.Config) error {
+// setupConfig sets up the configuration.
+func (a *BasicApp) setupConfig(c config.Config) error {
 	return c.NewString("MESSAGE", "Hello, World!", "The message to print.")
 }
 
