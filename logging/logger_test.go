@@ -55,3 +55,33 @@ func Test_With(t *testing.T) {
 		t.Fatal("zapLogger.GetZap returned a nil logger")
 	}
 }
+
+// Test_Level tests the Level/SetLevel functions.
+func Test_Level(t *testing.T) {
+	t.Parallel()
+	logger, err := New()
+	if err != nil {
+		t.Fatalf("New returned an error: %v", err)
+	}
+	if logger.Level() != InfoLevel {
+		t.Fatalf("Level returned %v, expected InfoLevel", logger.Level())
+	}
+	for _, level := range []Level{DebugLevel, InfoLevel, WarnLevel, ErrorLevel} {
+		logger.SetLevel(level)
+		if logger.Level() != level {
+			t.Fatalf("Level returned %v, expected %v", logger.Level(), level)
+		}
+	}
+}
+
+// Test_WithLevel tests the WithLevel option.
+func Test_WithLevel(t *testing.T) {
+	t.Parallel()
+	logger, err := New(WithLevel(DebugLevel))
+	if err != nil {
+		t.Fatalf("New returned an error: %v", err)
+	}
+	if logger.Level() != DebugLevel {
+		t.Fatalf("Level returned %v, expected DebugLevel", logger.Level())
+	}
+}

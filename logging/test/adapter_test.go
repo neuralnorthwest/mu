@@ -25,7 +25,7 @@ import (
 // outputLogCall is a call to output a log message.
 type outputLogCall struct {
 	// level is the level of the log message.
-	level logging.AdaptedLevel
+	level logging.Level
 	// message is the log message.
 	message string
 }
@@ -35,7 +35,7 @@ type Test_Adapter_Case struct {
 	// name is the name of the test case.
 	name string
 	// level is the level to use for the adapter
-	level logging.AdaptedLevel
+	level logging.Level
 	// inputLogs are the input logs to write to the adapter.
 	inputLogs []string
 	// expectedCalls are the expected calls to the logger.
@@ -51,27 +51,27 @@ func Test_Adapter(t *testing.T) {
 	for _, testCase := range []Test_Adapter_Case{
 		{
 			name:          "Debug",
-			level:         logging.AdaptedLevelDebug,
+			level:         logging.DebugLevel,
 			inputLogs:     []string{"debug message"},
-			expectedCalls: []outputLogCall{{level: logging.AdaptedLevelDebug, message: "debug message"}},
+			expectedCalls: []outputLogCall{{level: logging.DebugLevel, message: "debug message"}},
 		},
 		{
 			name:          "Info",
-			level:         logging.AdaptedLevelInfo,
+			level:         logging.InfoLevel,
 			inputLogs:     []string{"info message"},
-			expectedCalls: []outputLogCall{{level: logging.AdaptedLevelInfo, message: "info message"}},
+			expectedCalls: []outputLogCall{{level: logging.InfoLevel, message: "info message"}},
 		},
 		{
 			name:          "Warning",
-			level:         logging.AdaptedLevelWarn,
+			level:         logging.WarnLevel,
 			inputLogs:     []string{"warning message"},
-			expectedCalls: []outputLogCall{{level: logging.AdaptedLevelWarn, message: "warning message"}},
+			expectedCalls: []outputLogCall{{level: logging.WarnLevel, message: "warning message"}},
 		},
 		{
 			name:          "Error",
-			level:         logging.AdaptedLevelError,
+			level:         logging.ErrorLevel,
 			inputLogs:     []string{"error message"},
-			expectedCalls: []outputLogCall{{level: logging.AdaptedLevelError, message: "error message"}},
+			expectedCalls: []outputLogCall{{level: logging.ErrorLevel, message: "error message"}},
 		},
 	} {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -80,13 +80,13 @@ func Test_Adapter(t *testing.T) {
 			adapter := logging.NewAdapter(logger, testCase.level)
 			for _, expectedCall := range testCase.expectedCalls {
 				switch expectedCall.level {
-				case logging.AdaptedLevelDebug:
+				case logging.DebugLevel:
 					logger.EXPECT().Debug(expectedCall.message)
-				case logging.AdaptedLevelInfo:
+				case logging.InfoLevel:
 					logger.EXPECT().Info(expectedCall.message)
-				case logging.AdaptedLevelWarn:
+				case logging.WarnLevel:
 					logger.EXPECT().Warn(expectedCall.message)
-				case logging.AdaptedLevelError:
+				case logging.ErrorLevel:
 					logger.EXPECT().Error(expectedCall.message)
 				}
 			}

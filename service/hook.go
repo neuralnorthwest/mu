@@ -23,11 +23,11 @@ import (
 // CleanupFunc is a function that cleans up a service.
 type CleanupFunc func() error
 
-// ConfigSetupFunc is a function that sets up a service configuration.
-type ConfigSetupFunc func(c config.Config) error
-
 // PreRunFunc is a function that runs before the workers are started.
 type PreRunFunc func() error
+
+// SetupConfigFunc is a function that sets up a service configuration.
+type SetupConfigFunc func(c config.Config) error
 
 // SetupWorkersFunc is a function that sets up workers for the service.
 type SetupWorkersFunc func(workerGroup worker.Group) error
@@ -37,14 +37,14 @@ type SetupHTTPFunc func(server *http.Server) error
 
 type Hooks interface {
 	Cleanup(f CleanupFunc)
-	ConfigSetup(f ConfigSetupFunc)
 	PreRun(f PreRunFunc)
+	SetupConfig(f SetupConfigFunc)
 	SetupWorkers(f SetupWorkersFunc)
 	SetupHTTP(f SetupHTTPFunc)
 
 	invokeCleanup() error
-	invokeConfigSetup(c config.Config) error
 	invokePreRun() error
+	invokeSetupConfig(c config.Config) error
 	invokeSetupWorkers(workerGroup worker.Group) error
 	invokeSetupHTTP() (*http.Server, error)
 }
@@ -53,8 +53,8 @@ type Hooks interface {
 type hookstruct struct {
 	// cleanup is the cleanup hook.
 	cleanup CleanupFunc
-	// configSetup is the setup configuration hook.
-	configSetup ConfigSetupFunc
+	// setupConfig is the setup configuration hook.
+	setupConfig SetupConfigFunc
 	// prerun is the prerun hook.
 	prerun PreRunFunc
 	// setupWorkers is the setupWorkers hook.
@@ -73,9 +73,9 @@ func (h *hookstruct) Cleanup(f CleanupFunc) {
 	h.cleanup = f
 }
 
-// ConfigSetup registers a configuration setup hook.
-func (h *hookstruct) ConfigSetup(f ConfigSetupFunc) {
-	h.configSetup = f
+// SetupConfig registers a configuration setup hook.
+func (h *hookstruct) SetupConfig(f SetupConfigFunc) {
+	h.setupConfig = f
 }
 
 // PreRun registers a prerun hook.
@@ -101,10 +101,10 @@ func (h *hookstruct) invokeCleanup() error {
 	return nil
 }
 
-// invokeConfigSetup invokes the setup configuration hook.
-func (h *hookstruct) invokeConfigSetup(c config.Config) error {
-	if h.configSetup != nil {
-		return h.configSetup(c)
+// invokeSetupConfig invokes the setup configuration hook.
+func (h *hookstruct) invokeSetupConfig(c config.Config) error {
+	if h.setupConfig != nil {
+		return h.setupConfig(c)
 	}
 	return nil
 }

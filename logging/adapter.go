@@ -19,25 +19,10 @@ import (
 	"log"
 )
 
-// AdaptedLevel is a log level that can be adapted to the standard library
-// logger.
-type AdaptedLevel int
-
-const (
-	// AdaptedLevelDebug is the debug level.
-	AdaptedLevelDebug AdaptedLevel = iota
-	// AdaptedLevelInfo is the info level.
-	AdaptedLevelInfo
-	// AdaptedLevelWarn is the warn level.
-	AdaptedLevelWarn
-	// AdaptedLevelError is the error level.
-	AdaptedLevelError
-)
-
 // Adapter adapts the Mu logger to the standard library logger.
 type Adapter struct {
 	// level is the log level to adapt to.
-	level AdaptedLevel
+	level Level
 	// logger is the Mu logger.
 	logger Logger
 	// buffer is a buffer for accumulating log lines.
@@ -46,7 +31,7 @@ type Adapter struct {
 
 // NewAdapter creates a new Adapter and returns a log.Logger that writes to it.
 // The level controls how the log messages are written to the Mu logger.
-func NewAdapter(logger Logger, level AdaptedLevel) *log.Logger {
+func NewAdapter(logger Logger, level Level) *log.Logger {
 	return log.New(&Adapter{
 		level:  level,
 		logger: logger,
@@ -65,13 +50,13 @@ func (a *Adapter) Write(b []byte) (int, error) {
 		// Remove the trailing newline
 		line = line[:len(line)-1]
 		switch a.level {
-		case AdaptedLevelDebug:
+		case DebugLevel:
 			a.logger.Debug(string(line))
-		case AdaptedLevelInfo:
+		case InfoLevel:
 			a.logger.Info(string(line))
-		case AdaptedLevelWarn:
+		case WarnLevel:
 			a.logger.Warn(string(line))
-		case AdaptedLevelError:
+		case ErrorLevel:
 			a.logger.Error(string(line))
 		}
 	}

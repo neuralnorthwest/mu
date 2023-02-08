@@ -59,14 +59,14 @@ func newBasicApp() (*BasicApp, error) {
 	app := &BasicApp{
 		Service: svc,
 	}
-	app.ConfigSetup(app.configSetup)
+	app.SetupConfig(app.setupConfig)
 	app.SetupWorkers(app.setupWorkers)
 	app.Cleanup(app.cleanup)
 	return app, nil
 }
 
-// configSetup sets up the configuration.
-func (a *BasicApp) configSetup(c config.Config) error {
+// setupConfig sets up the configuration.
+func (a *BasicApp) setupConfig(c config.Config) error {
 	return c.NewString("MESSAGE", "Hello, World!", "The message to print.")
 }
 

@@ -25,7 +25,7 @@ import (
 // will be used to log any errors that occur while serving the metrics.
 func (m *metrics) Handler(logger logging.Logger) ht.Handler {
 	return promhttp.HandlerFor(m.registry, promhttp.HandlerOpts{
-		ErrorLog:      logging.NewAdapter(logger, logging.AdaptedLevelError),
+		ErrorLog:      logging.NewAdapter(logger, logging.ErrorLevel),
 		ErrorHandling: promhttp.ContinueOnError,
 	})
 }
