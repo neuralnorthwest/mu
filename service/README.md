@@ -43,11 +43,11 @@ import (
 //  - Define newBasicApp, which initializes the application:
 //    - Create a new service.Service
 //    - Register the configuration setup hook `configSetup`
-//    - Register the setup hook `setup`
+//    - Register the worker setup hook `setupWorkers`
 //    - Register the cleanup hook `cleanup`
 //  - Define configSetup, which sets up the configuration:
 //    - Create a new string configuration variable `MESSAGE`
-//  - Define setup, which sets up the application:
+//  - Define setupWorkers, which sets up the application:
 //    - Create a new HTTP server
 //    - Register a handler for the `/hello` endpoint
 //    - Add the HTTP server to the worker group
@@ -73,7 +73,7 @@ func newBasicApp() (*BasicApp, error) {
 		Service: svc,
 	}
 	app.ConfigSetup(app.configSetup)
-	app.Setup(app.setup)
+	app.SetupWorkers(app.setupWorkers)
 	app.Cleanup(app.cleanup)
 	return app, nil
 }
@@ -83,8 +83,8 @@ func (a *BasicApp) configSetup(c config.Config) error {
 	return c.NewString("MESSAGE", "Hello, World!", "The message to print.")
 }
 
-// setup sets up the application.
-func (a *BasicApp) setup(workerGroup worker.Group) error {
+// setupWorkers sets up the application.
+func (a *BasicApp) setupWorkers(workerGroup worker.Group) error {
 	httpServer, err := http.NewServer()
 	if err != nil {
 		return err

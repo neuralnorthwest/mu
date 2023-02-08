@@ -44,9 +44,6 @@ type Service struct {
 	newLogger func() (logging.Logger, error)
 	// sigChan is the channel for signals.
 	sigChan chan os.Signal
-	// stopImmediately is true if the service should stop immediately. This is
-	// used for testing.
-	stopImmediately bool
 }
 
 // New returns a new service.

@@ -29,8 +29,8 @@ import (
 //  - Define MetricsApp, which embeds an instance of service.Service
 //  - Define newMetricsApp, which initializes the application:
 //    - Create a new service.Service
-//    - Register the setup hook `setup`
-//  - Define setup, which sets up the application:
+//    - Register the worker setup hook `setupWorkers`
+//  - Define setupWorkers, which sets up the application workers:
 //    - Create a new HTTP server
 //    - Register a handler for the `/hello` endpoint
 //    - Register a handler for the `/metrics` endpoint
@@ -58,12 +58,12 @@ func newMetricsApp() (*MetricsApp, error) {
 	app := &MetricsApp{
 		Service: svc,
 	}
-	app.Setup(app.setup)
+	app.SetupWorkers(app.setupWorkers)
 	return app, nil
 }
 
-// setup sets up the application.
-func (a *MetricsApp) setup(workerGroup worker.Group) error {
+// setupWorkers sets up the application.
+func (a *MetricsApp) setupWorkers(workerGroup worker.Group) error {
 	met, _ := metrics.New()
 	a.helloCounter = met.NewCounter("hello_counter", "Number of times the /hello endpoint has been called")
 	httpServer, err := http.NewServer()
