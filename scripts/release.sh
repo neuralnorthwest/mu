@@ -17,6 +17,13 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
+ensure-tree-is-clean() {
+    if ! git diff --quiet; then
+        echo "Tree is dirty."
+        exit 1
+    fi
+}
+
 # Test for presence of gh.
 if ! command -v gh >/dev/null 2>&1; then
     echo "gh not found. Please install it with `make setup-dev`."
@@ -44,22 +51,21 @@ if [ "${fail_vercheck:-}" = "1" ]; then
     exit 1
 fi
 
-# Make sure README.md is clean
-if ! git diff --quiet README.md; then
-    echo "README.md is dirty."
-    exit 1
-fi
+ensure-tree-is-clean
 
-# Run scripts/update-wc.sh to update the code size badge. README.md should
-# be clean after this.
+# Run scripts/update-wc.sh to update the code size badge.
 if ! scripts/update-wc.sh; then
     echo "Failed to update code size badge."
     exit 1
 fi
-if ! git diff --quiet README.md; then
-    echo "README.md is dirty after updating code size badge. Run scripts/update-wc.sh and commit the changes."
+
+# Run make generate.
+if ! make generate; then
+    echo "Failed to run make generate."
     exit 1
 fi
+
+ensure-tree-is-clean
 
 # Scrape the changelog for the release notes. Grab the block from
 # `## $version` to the next `## `.

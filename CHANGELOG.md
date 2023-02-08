@@ -1,3 +1,7 @@
+## v0.1.12
+
+* TODO
+
 ## v0.1.11
 
 * The `ConfigSetup` hook has been renamed to `SetupConfig`. **This is a
