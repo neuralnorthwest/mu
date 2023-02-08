@@ -26,8 +26,8 @@ import (
 
 // Worker is an interface for a worker.
 type Worker interface {
-	// Run runs the worker in the given errgroup. The worker will stop when the
-	// context is canceled.
+	// Run runs the worker. The worker will stop when the context is canceled
+	// or an error occurs.
 	Run(ctx context.Context, logger logging.Logger) error
 }
 
@@ -43,7 +43,7 @@ type Group interface {
 	Run(ctx context.Context, logger logging.Logger) error
 	// Start starts the worker group. This will start all the workers in the
 	// worker group. This will not block. To wait for the workers to stop, call
-	// Wait after canceling the context.
+	// Wait and cancel the context.
 	Start(ctx context.Context, logger logging.Logger) error
 	// Wait waits for the worker group to stop.
 	Wait() error
