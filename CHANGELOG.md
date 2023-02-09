@@ -1,6 +1,6 @@
 ## v0.1.12
 
-* TODO
+* Dependency upgrades
 
 ## v0.1.11
 
