@@ -52,6 +52,7 @@ fi
 # If the version is not the same as the main branch, exit.
 if [ "$version" != "$main_version" ]; then
     echo "The version is not the same as the main branch."
+    echo "This probably means that the version has already been rolled."
     exit 1
 fi
 
