@@ -52,7 +52,8 @@ func (i *errorLoggingInterceptor) Write(body []byte) (int, error) {
 	return i.ResponseWriter.Write(body)
 }
 
-// ErrorLoggingMiddleware is an HTTP middleware that logs errors.
+// ErrorLoggingMiddleware is an HTTP middleware that logs errors. For this to
+// work effectively, it must be the outermost (leftmost) middleware.
 func ErrorLoggingMiddleware(logger logging.Logger) Middleware {
 	return func(pattern string, next ht.Handler) ht.Handler {
 		return ht.HandlerFunc(func(w ht.ResponseWriter, r *ht.Request) {
@@ -68,7 +69,16 @@ func ErrorLoggingMiddleware(logger logging.Logger) Middleware {
 }
 
 // WithErrorLogging returns an option that adds the error logging middleware to
-// the server.
+// the server. For this to work effectively, it must be the outermost (leftmost)
+// middleware. If used in conjunction with PanicMiddleware, the PanicMiddleware
+// should be immediately inner to (right of) the ErrorLoggingMiddleware.
 func WithErrorLogging(logger logging.Logger) ServerOption {
 	return WithMiddleware(ErrorLoggingMiddleware(logger))
+}
+
+// WithPanicAndErrorLogging returns an option that adds the panic and error
+// logging middleware to the server. For this to work effectively, it must be
+// the outermost (leftmost) middleware.
+func WithPanicAndErrorLogging(logger logging.Logger, buffered bool) ServerOption {
+	return WithMiddleware(PanicMiddleware(logger, buffered), ErrorLoggingMiddleware(logger))
 }
