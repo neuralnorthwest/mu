@@ -1,3 +1,9 @@
+## v0.1.15
+
+* Bug fix:
+  * `http.WithPanicAndErrorLogging` was installing the middleware in the wrong
+    order, causing error logging of panics to not be effective.
+
 ## v0.1.14
 
 * Semantics of `Cleanup` have been changed. It can now be called multiple times
