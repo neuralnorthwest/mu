@@ -33,26 +33,6 @@ func Test_hooks_NoHooks(t *testing.T) {
 	if err := h.invokeSetupWorkers(nil); err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if err := h.invokeCleanup(); err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-}
-
-// Test_hooks_InvokeCleanup tests that the cleanup hook is invoked.
-func Test_hooks_InvokeCleanup(t *testing.T) {
-	t.Parallel()
-	wasInvoked := false
-	h := &hookstruct{}
-	h.Cleanup(func() error {
-		wasInvoked = true
-		return nil
-	})
-	if err := h.invokeCleanup(); err != nil {
-		t.Errorf("unexpected error: %v", err)
-	}
-	if !wasInvoked {
-		t.Error("expected cleanup hook to be invoked")
-	}
 }
 
 // Test_hooks_InvokeSetupConfig tests that the config setup hook is invoked.

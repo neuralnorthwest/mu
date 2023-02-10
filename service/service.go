@@ -44,6 +44,8 @@ type Service struct {
 	newLogger func() (logging.Logger, error)
 	// sigChan is the channel for signals.
 	sigChan chan os.Signal
+	// cleanups are the cleanups for the service.
+	cleanups []func()
 }
 
 // New returns a new service.

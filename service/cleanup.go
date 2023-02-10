@@ -12,12 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package mu
+package service
 
-const version = "v0.1.14"
-const _ = version
+// CleanupFunc is a function that cleans up a service.
+type CleanupFunc func()
 
-// Version returns the version of mu.
-func Version() string {
-	return version
+// Cleanup registers a cleanup function that is invoked when the service is
+// stopped. Multiple cleanup functions can be registered. Cleanups are invoked
+// in the reverse order they are registered.
+func (s *Service) Cleanup(f CleanupFunc) {
+	s.cleanups = append(s.cleanups, f)
+}
+
+// invokeCleanups invokes the cleanups for the service.
+func (s *Service) invokeCleanups() {
+	for i := len(s.cleanups) - 1; i >= 0; i-- {
+		s.cleanups[i]()
+	}
 }

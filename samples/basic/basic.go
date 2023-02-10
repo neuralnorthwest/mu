@@ -83,9 +83,8 @@ func (a *BasicApp) setupWorkers(workerGroup worker.Group) error {
 }
 
 // cleanup cleans up the application.
-func (a *BasicApp) cleanup() error {
+func (a *BasicApp) cleanup() {
 	a.Logger().Info("Cleaning up...")
-	return nil
 }
 
 func main() {

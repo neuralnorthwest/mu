@@ -43,3 +43,6 @@ var ErrAlreadyStarted = Error("already started")
 
 // ErrNotStarted is returned when a service is not started.
 var ErrNotStarted = Error("not started")
+
+// ErrNotImplemented is returned when a method is not implemented.
+var ErrNotImplemented = Error("not implemented")
