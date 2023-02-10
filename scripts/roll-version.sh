@@ -28,6 +28,11 @@ ensure-tree-is-clean() {
 git checkout main
 git pull
 
+if ! main_version=$(scripts/detect-version.sh); then
+    echo "Failed to detect version number."
+    exit 1
+fi
+
 # Check out and update the develop branch.
 git checkout develop
 git pull origin main
@@ -41,6 +46,12 @@ fi
 # Get current version.
 if ! version=$(scripts/detect-version.sh); then
     echo "Failed to detect version number."
+    exit 1
+fi
+
+# If the version is not the same as the main branch, exit.
+if [ "$version" != "$main_version" ]; then
+    echo "The version is not the same as the main branch."
     exit 1
 fi
 
