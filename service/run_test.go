@@ -27,6 +27,7 @@ import (
 	mock_logging "github.com/neuralnorthwest/mu/logging/mock"
 	"github.com/neuralnorthwest/mu/status"
 	"github.com/neuralnorthwest/mu/worker"
+	"github.com/stretchr/testify/assert"
 )
 
 // Test_run tests that the service runs. This is a basic test with no
@@ -64,13 +65,11 @@ func Test_run_MockMode(t *testing.T) {
 // if any, hooks should return errors.
 type Test_run_Hooks_Case struct {
 	name                   string
-	cleanupErr             error
 	prerunErr              error
 	setupConfigErr         error
 	setupWorkersErr        error
 	setupHTTPErr           error
 	expectedErr            string
-	cleanupWasInvoked      bool
 	prerunWasInvoked       bool
 	setupConfigWasInvoked  bool
 	setupWorkersWasInvoked bool
@@ -83,26 +82,10 @@ func Test_run_Hooks(t *testing.T) {
 	testCases := []Test_run_Hooks_Case{
 		{
 			name:                   "no errors",
-			cleanupErr:             nil,
 			prerunErr:              nil,
 			setupConfigErr:         nil,
 			setupWorkersErr:        nil,
 			setupHTTPErr:           nil,
-			cleanupWasInvoked:      true,
-			prerunWasInvoked:       true,
-			setupConfigWasInvoked:  true,
-			setupWorkersWasInvoked: true,
-			setupHTTPWasInvoked:    true,
-		},
-		{
-			name:                   "cleanup error",
-			cleanupErr:             fmt.Errorf("cleanup error"),
-			prerunErr:              nil,
-			setupConfigErr:         nil,
-			setupWorkersErr:        nil,
-			setupHTTPErr:           nil,
-			expectedErr:            "cleanup error",
-			cleanupWasInvoked:      true,
 			prerunWasInvoked:       true,
 			setupConfigWasInvoked:  true,
 			setupWorkersWasInvoked: true,
@@ -110,13 +93,11 @@ func Test_run_Hooks(t *testing.T) {
 		},
 		{
 			name:                   "config setup error",
-			cleanupErr:             nil,
 			prerunErr:              nil,
 			setupConfigErr:         fmt.Errorf("config setup error"),
 			setupWorkersErr:        nil,
 			setupHTTPErr:           nil,
 			expectedErr:            "config setup error",
-			cleanupWasInvoked:      false,
 			prerunWasInvoked:       false,
 			setupConfigWasInvoked:  true,
 			setupWorkersWasInvoked: false,
@@ -124,13 +105,11 @@ func Test_run_Hooks(t *testing.T) {
 		},
 		{
 			name:                   "prerun error",
-			cleanupErr:             nil,
 			prerunErr:              fmt.Errorf("prerun error"),
 			setupConfigErr:         nil,
 			setupWorkersErr:        nil,
 			setupHTTPErr:           nil,
 			expectedErr:            "prerun error",
-			cleanupWasInvoked:      true,
 			prerunWasInvoked:       true,
 			setupConfigWasInvoked:  true,
 			setupWorkersWasInvoked: true,
@@ -138,13 +117,11 @@ func Test_run_Hooks(t *testing.T) {
 		},
 		{
 			name:                   "setup workers error",
-			cleanupErr:             nil,
 			prerunErr:              nil,
 			setupConfigErr:         nil,
 			setupWorkersErr:        fmt.Errorf("setup workers error"),
 			setupHTTPErr:           nil,
 			expectedErr:            "setup workers error",
-			cleanupWasInvoked:      false,
 			prerunWasInvoked:       false,
 			setupConfigWasInvoked:  true,
 			setupWorkersWasInvoked: true,
@@ -152,13 +129,11 @@ func Test_run_Hooks(t *testing.T) {
 		},
 		{
 			name:                   "setup HTTP error",
-			cleanupErr:             nil,
 			prerunErr:              nil,
 			setupConfigErr:         nil,
 			setupWorkersErr:        nil,
 			setupHTTPErr:           fmt.Errorf("setup HTTP error"),
 			expectedErr:            "setup HTTP error",
-			cleanupWasInvoked:      true,
 			prerunWasInvoked:       false,
 			setupConfigWasInvoked:  true,
 			setupWorkersWasInvoked: true,
@@ -171,15 +146,10 @@ func Test_run_Hooks(t *testing.T) {
 			if err != nil {
 				t.Fatalf("New returned an error: %v", err)
 			}
-			cleanupWasInvoked := false
 			prerunWasInvoked := false
 			setupConfigWasInvoked := false
 			setupWorkersWasInvoked := false
 			setupHTTPWasInvoked := false
-			svc.Cleanup(func() error {
-				cleanupWasInvoked = true
-				return tc.cleanupErr
-			})
 			svc.SetupConfig(func(config.Config) error {
 				setupConfigWasInvoked = true
 				return tc.setupConfigErr
@@ -208,9 +178,6 @@ func Test_run_Hooks(t *testing.T) {
 			} else if err != nil {
 				t.Errorf("Run returned an error: %v", err)
 			}
-			if cleanupWasInvoked != tc.cleanupWasInvoked {
-				t.Errorf("cleanup hook was invoked: %t", cleanupWasInvoked)
-			}
 			if setupConfigWasInvoked != tc.setupConfigWasInvoked {
 				t.Errorf("config setup hook was invoked: %t", setupConfigWasInvoked)
 			}
@@ -225,6 +192,22 @@ func Test_run_Hooks(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Test_SetupHTTP_Conflict tests that SetupHTTP returns an error if there is
+// already a worker named "http_server" in the worker group.
+func Test_SetupHTTP_Conflict(t *testing.T) {
+	t.Parallel()
+	svc, err := New("test-service")
+	assert.NoError(t, err)
+	svc.SetupWorkers(func(wg worker.Group) error {
+		return wg.Add("http_server", newTestWorker(t, nil))
+	})
+	svc.SetupHTTP(func(*http.Server) error {
+		return nil
+	})
+	err = svc.Run()
+	assert.EqualError(t, err, "already exists: http_server")
 }
 
 // Test_run_Workers_Case is a test case for Test_run_Workers. It specifies

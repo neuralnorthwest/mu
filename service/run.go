@@ -25,6 +25,7 @@ import (
 
 // Run runs the service.
 func (s *Service) Run() (status error) {
+	defer s.invokeCleanups()
 	if s.MockMode() {
 		s.logger.Info("running in mock mode")
 	}
@@ -37,12 +38,6 @@ func (s *Service) Run() (status error) {
 	if err := s.invokeSetupWorkers(workerGroup); err != nil {
 		return err
 	}
-	defer func() {
-		err := s.invokeCleanup()
-		if status == nil {
-			status = err
-		}
-	}()
 	if httpServer, err := s.invokeSetupHTTP(); err != nil {
 		return err
 	} else if httpServer != nil {

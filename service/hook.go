@@ -20,9 +20,6 @@ import (
 	"github.com/neuralnorthwest/mu/worker"
 )
 
-// CleanupFunc is a function that cleans up a service.
-type CleanupFunc func() error
-
 // PreRunFunc is a function that runs before the workers are started.
 type PreRunFunc func() error
 
@@ -36,13 +33,11 @@ type SetupWorkersFunc func(workerGroup worker.Group) error
 type SetupHTTPFunc func(server *http.Server) error
 
 type Hooks interface {
-	Cleanup(f CleanupFunc)
 	PreRun(f PreRunFunc)
 	SetupConfig(f SetupConfigFunc)
 	SetupWorkers(f SetupWorkersFunc)
 	SetupHTTP(f SetupHTTPFunc)
 
-	invokeCleanup() error
 	invokePreRun() error
 	invokeSetupConfig(c config.Config) error
 	invokeSetupWorkers(workerGroup worker.Group) error
@@ -51,8 +46,6 @@ type Hooks interface {
 
 // hookstruct holds the hooks for a service.
 type hookstruct struct {
-	// cleanup is the cleanup hook.
-	cleanup CleanupFunc
 	// setupConfig is the setup configuration hook.
 	setupConfig SetupConfigFunc
 	// prerun is the prerun hook.
@@ -67,11 +60,6 @@ type hookstruct struct {
 }
 
 var _ Hooks = (*hookstruct)(nil)
-
-// Cleanup registers a cleanup hook.
-func (h *hookstruct) Cleanup(f CleanupFunc) {
-	h.cleanup = f
-}
 
 // SetupConfig registers a configuration setup hook.
 func (h *hookstruct) SetupConfig(f SetupConfigFunc) {
@@ -91,14 +79,6 @@ func (h *hookstruct) SetupWorkers(f SetupWorkersFunc) {
 // SetupHTTP registers a setup HTTP hook.
 func (h *hookstruct) SetupHTTP(f SetupHTTPFunc) {
 	h.setupHTTP = f
-}
-
-// invokeCleanup invokes the cleanup hook.
-func (h *hookstruct) invokeCleanup() error {
-	if h.cleanup != nil {
-		return h.cleanup()
-	}
-	return nil
 }
 
 // invokeSetupConfig invokes the setup configuration hook.

@@ -1,6 +1,9 @@
 ## v0.1.14
 
-TODO
+* Semantics of `Cleanup` have been changed. It can now be called multiple times
+  to register multiple cleanup functions. The cleanup functions are called in
+  the reverse order in which they were registered. Cleanup functions can no
+  longer return errors.
 
 ## v0.1.13
 
