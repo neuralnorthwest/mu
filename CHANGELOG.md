@@ -1,3 +1,7 @@
+## v0.1.13
+
+* Added `PanicMiddleware` to `http` package.
+
 ## v0.1.12
 
 * Dependency upgrades
