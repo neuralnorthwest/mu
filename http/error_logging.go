@@ -80,5 +80,5 @@ func WithErrorLogging(logger logging.Logger) ServerOption {
 // logging middleware to the server. For this to work effectively, it must be
 // the outermost (leftmost) middleware.
 func WithPanicAndErrorLogging(logger logging.Logger, buffered bool) ServerOption {
-	return WithMiddleware(PanicMiddleware(logger, buffered), ErrorLoggingMiddleware(logger))
+	return WithMiddleware(ErrorLoggingMiddleware(logger), PanicMiddleware(logger, buffered))
 }
