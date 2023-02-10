@@ -64,3 +64,7 @@ test-go:
 .PHONY: release
 release:
 	@./scripts/release.sh
+
+.PHONY: roll-version
+roll-version:
+	@./scripts/roll-version.sh
