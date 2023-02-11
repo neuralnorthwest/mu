@@ -25,9 +25,9 @@ import (
 
 // MetricsOptions specifies options for HTTP metrics
 type MetricsOptions struct {
-	// Server is the server to use for the metrics endpoint. If nil, the
-	// server that is being constructed will be used.
-	Server *Server
+	// Server is a function to call to get the server to use for the metrics
+	// endpoint. If nil, the server that is being constructed will be used.
+	Server func() *Server
 	// Path is the path to the metrics endpoint. If empty, the metrics
 	// are served at /metrics.
 	Path string
@@ -81,7 +81,7 @@ func WithMetrics(met metrics.Metrics, logger logging.Logger, opts MetricsOptions
 			path = "/metrics"
 		}
 		if opts.Server != nil {
-			server = opts.Server
+			server = opts.Server()
 		}
 		server.Handle(path, promhttp.InstrumentMetricHandler(metrics.PrometheusRegistry(met), met.Handler(logger)))
 		return nil
