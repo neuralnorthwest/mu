@@ -32,7 +32,7 @@ generate:
 	@go generate ./...
 
 .PHONY: setup-dev
-setup-dev: setup-git-hooks setup-venv setup-gh
+setup-dev: setup-git-hooks setup-venv setup-gh setup-buf
 
 .PHONY: setup-git-hooks
 setup-git-hooks:
@@ -45,6 +45,10 @@ setup-venv:
 .PHONY: setup-gh
 setup-gh:
 	@./scripts/setup-gh.sh
+
+.PHONY: setup-buf
+setup-buf:
+	@./scripts/setup-buf.sh
 
 .PHONY: check-license
 check-license:
