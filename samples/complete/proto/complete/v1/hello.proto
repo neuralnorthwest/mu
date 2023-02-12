@@ -17,7 +17,7 @@ syntax = "proto3";
 
 package complete.v1;
 
-option go_package = "github.com/scottml/complete/v1;completev1";
+option go_package = "github.com/neuralnorthwest/mu/samples/complete/v1";
 
 // CompleteService is the service definition.
 service CompleteService {

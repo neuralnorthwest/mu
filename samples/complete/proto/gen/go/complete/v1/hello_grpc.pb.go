@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: complete/v1/hello.proto
 
-package completev1
+package v1
 
 import (
 	context "context"
@@ -44,20 +44,22 @@ func (c *completeServiceClient) Hello(ctx context.Context, in *HelloRequest, opt
 }
 
 // CompleteServiceServer is the server API for CompleteService service.
-// All implementations should embed UnimplementedCompleteServiceServer
+// All implementations must embed UnimplementedCompleteServiceServer
 // for forward compatibility
 type CompleteServiceServer interface {
 	// Hello is a simple RPC that returns a greeting.
 	Hello(context.Context, *HelloRequest) (*HelloResponse, error)
+	mustEmbedUnimplementedCompleteServiceServer()
 }
 
-// UnimplementedCompleteServiceServer should be embedded to have forward compatible implementations.
+// UnimplementedCompleteServiceServer must be embedded to have forward compatible implementations.
 type UnimplementedCompleteServiceServer struct {
 }
 
 func (UnimplementedCompleteServiceServer) Hello(context.Context, *HelloRequest) (*HelloResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Hello not implemented")
 }
+func (UnimplementedCompleteServiceServer) mustEmbedUnimplementedCompleteServiceServer() {}
 
 // UnsafeCompleteServiceServer may be embedded to opt out of forward compatibility for this service.
 // Use of this interface is not recommended, as added methods to CompleteServiceServer will
