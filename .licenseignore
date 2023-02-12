@@ -7,7 +7,6 @@
 ./go.sum
 ./.licenseignore
 ./README.md
-./samples/complete/proto/buf.gen.yaml
 ./samples/complete/README.md
 ./SECURITY.md
 ./service/README.md
