@@ -32,11 +32,7 @@ generate: generate-go generate-proto
 
 .PHONY: generate-proto
 generate-proto:
-	@find . -type d -name proto | while read -r dir; do \
-		echo "Generating $$dir"; \
-		cd $$dir; \
-		buf generate; \
-	done
+	@./scripts/generate-proto.sh > /dev/null 2>&1
 	@echo "Buf generate passed"
 
 .PHONY: generate-go
@@ -64,7 +60,7 @@ setup-buf:
 
 .PHONY: check-license
 check-license:
-	@./scripts/check-license.sh > /dev/null
+	@./scripts/check-license.sh > /dev/null 2>&1
 	@echo "License check passed"
 
 .PHONY: lint
@@ -72,7 +68,7 @@ lint: lint-proto lint-go
 
 .PHONY: lint-proto
 lint-proto:
-	@find . -type d -name proto -exec buf lint {} \;
+	@./scripts/lint-proto.sh > /dev/null 2>&1
 	@echo "Buf lint passed"
 
 .PHONY: lint-go
