@@ -25,10 +25,22 @@
 # release: releases the project (called from CI)
 
 .PHONY: check
-check: generate check-license lint-go test-go
+check: generate check-license lint test
 
 .PHONY: generate
-generate:
+generate: generate-go generate-proto
+
+.PHONY: generate-proto
+generate-proto:
+	@find . -type d -name proto | while read -r dir; do \
+		echo "Generating $$dir"; \
+		cd $$dir; \
+		buf generate; \
+	done
+	@echo "Buf generate passed"
+
+.PHONY: generate-go
+generate-go:
 	@go generate ./...
 
 .PHONY: setup-dev
@@ -55,10 +67,21 @@ check-license:
 	@./scripts/check-license.sh > /dev/null
 	@echo "License check passed"
 
+.PHONY: lint
+lint: lint-proto lint-go
+
+.PHONY: lint-proto
+lint-proto:
+	@find . -type d -name proto -exec buf lint {} \;
+	@echo "Buf lint passed"
+
 .PHONY: lint-go
 lint-go:
 	@golangci-lint run > /dev/null 2>&1
 	@echo "Go lint passed"
+
+.PHONY: test
+test: test-go
 
 .PHONY: test-go
 test-go:

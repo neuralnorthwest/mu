@@ -6,8 +6,8 @@
 ./.github/ISSUE_TEMPLATE/feature_request.md
 ./go.sum
 ./.licenseignore
-./logging/mock/logger.go
 ./README.md
+./samples/complete/proto/buf.gen.yaml
 ./samples/complete/README.md
 ./SECURITY.md
 ./service/README.md
