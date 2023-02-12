@@ -4,7 +4,7 @@
 // - protoc             (unknown)
 // source: complete/v1/hello.proto
 
-package proto
+package completev1
 
 import (
 	context "context"
@@ -36,7 +36,7 @@ func NewCompleteServiceClient(cc grpc.ClientConnInterface) CompleteServiceClient
 
 func (c *completeServiceClient) Hello(ctx context.Context, in *HelloRequest, opts ...grpc.CallOption) (*HelloResponse, error) {
 	out := new(HelloResponse)
-	err := c.cc.Invoke(ctx, "/com.neuralnorthwest.mu.sample.complete.v1.CompleteService/Hello", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/complete.v1.CompleteService/Hello", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func _CompleteService_Hello_Handler(srv interface{}, ctx context.Context, dec fu
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/com.neuralnorthwest.mu.sample.complete.v1.CompleteService/Hello",
+		FullMethod: "/complete.v1.CompleteService/Hello",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CompleteServiceServer).Hello(ctx, req.(*HelloRequest))
@@ -92,7 +92,7 @@ func _CompleteService_Hello_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CompleteService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "com.neuralnorthwest.mu.sample.complete.v1.CompleteService",
+	ServiceName: "complete.v1.CompleteService",
 	HandlerType: (*CompleteServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
