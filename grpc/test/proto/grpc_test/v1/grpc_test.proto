@@ -15,29 +15,24 @@
 // Basic protobuf
 syntax = "proto3";
 
-package complete.v1;
+package grpc_test.v1;
 
-option go_package = "github.com/neuralnorthwest/mu/samples/complete/proto/gen/go/complete/v1";
+option go_package = "github.com/neuralnorthwest/mu/grpc/test/proto/gen/go/grpc_test/v1";
 
-// CompleteService is the service definition.
-service CompleteService {
-  // Hello is a simple RPC that returns a greeting.
-    rpc Hello (HelloRequest) returns (HelloResponse) {}
+// GRPCTestService is a test service
+service GRPCTestService {
+  // GRPCTest is a test method
+  rpc GRPCTest(GRPCTestRequest) returns (GRPCTestResponse) {}
 }
 
-// HelloRequest is the request message.
-message HelloRequest {
-    Selection selection = 1;
+// TestRequest is a test request
+message GRPCTestRequest {
+  // Name is a test name
+  string name = 1;
 }
 
-// HelloResponse is the response message.
-message HelloResponse {
-    string greeting = 1;
-}
-
-// Selection is the request message.
-enum Selection {
-    SELECTION_UNSPECIFIED = 0;
-    SELECTION_HELLO = 1;
-    SELECTION_GOODBYE = 2;
+// TestResponse is a test response
+message GRPCTestResponse {
+  // Message is a test message
+  string message = 1;
 }
