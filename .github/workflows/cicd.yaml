@@ -96,6 +96,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: bufbuild/buf-setup-action@v1.14.0
+        with:
+          github_token: ${{ github.token }}
       - run: |
           gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
           make setup-buf
