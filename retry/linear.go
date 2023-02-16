@@ -39,7 +39,7 @@ var _ StrategyWithIncrement = (*linear)(nil)
 var _ StrategyWithMaxAttempts = (*linear)(nil)
 
 // Linear returns a retry strategy that uses linear backoff.
-func Linear(opts ...Option) Strategy {
+func Linear(opts ...StrategyOption) Strategy {
 	l := &linear{
 		baseInterval: 100 * time.Millisecond,
 		maxInterval:  10 * time.Second,

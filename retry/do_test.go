@@ -17,6 +17,7 @@ package retry
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 )
@@ -61,8 +62,8 @@ func (f *failAfter) F(t *testing.T) error {
 // Test_Do_Case is a test case for Test_Do.
 type Test_Do_Case struct {
 	name              string
-	construct         func(opts ...Option) Strategy
-	opts              []Option
+	construct         func(opts ...StrategyOption) Strategy
+	opts              []StrategyOption
 	fail              failAfter
 	expectedIntervals []time.Duration
 	expectedErr       error
@@ -93,7 +94,7 @@ var doCases = []Test_Do_Case{
 	{
 		name:      "linear, default, fail after 5",
 		construct: Linear,
-		opts: []Option{
+		opts: []StrategyOption{
 			WithMaxAttempts(4),
 		},
 		fail: failAfter{
@@ -204,5 +205,63 @@ func Test_DoAsync(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+// Test_Do_OnRetryAttempt tests that OnRetryAttempt is called as expected and
+// that it can be used to cancel the retry loop.
+func Test_Do_OnRetryAttempt(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	var attempts []int
+	err := Do(ctx, Linear(), func() error {
+		return errors.New("error")
+	}, OnRetryAttempt(func(attempt int, err error) error {
+		attempts = append(attempts, attempt)
+		if attempt == 3 {
+			return errors.New("cancel")
+		}
+		return nil
+	}))
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if len(attempts) != 3 {
+		t.Fatalf("unexpected number of attempts: %d", len(attempts))
+	}
+	for i := range attempts {
+		if attempts[i] != i+1 {
+			t.Fatalf("unexpected attempt: i=%d, %d", i, attempts[i])
+		}
+	}
+}
+
+// Test_Do_OnRetry tests that OnRetry is called as expected and that it can be
+// used to cancel the retry loop.
+func Test_Do_OnRetry(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+	var errs []error
+	i := 0
+	err := Do(ctx, Linear(), func() error {
+		i++
+		return fmt.Errorf("%d", i)
+	}, OnRetry(func(err error) error {
+		errs = append(errs, err)
+		if err.Error() == "3" {
+			return errors.New("cancel")
+		}
+		return nil
+	}))
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if len(errs) != 3 {
+		t.Fatalf("unexpected number of errors: %d", len(errs))
+	}
+	for i := range errs {
+		if errs[i].Error() != fmt.Sprintf("%d", i+1) {
+			t.Fatalf("unexpected error: i=%d, %s", i, errs[i])
+		}
 	}
 }

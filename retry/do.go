@@ -29,11 +29,27 @@ type Strategy interface {
 
 // Do retries the provided function according to the provided strategy, until
 // the context is canceled or the function returns nil.
-func Do(ctx context.Context, strategy Strategy, fn func() error) error {
+func Do(ctx context.Context, strategy Strategy, fn func() error, opts ...DoOption) error {
+	doOpts := &doOptions{}
+	for _, opt := range opts {
+		opt(doOpts)
+	}
+	retry := 0
 	for {
 		err := fn()
 		if err == nil {
 			return nil
+		}
+		retry++
+		if doOpts.onRetryAttempt != nil {
+			if err2 := doOpts.onRetryAttempt(retry, err); err2 != nil {
+				return err2
+			}
+		}
+		if doOpts.onRetry != nil {
+			if err2 := doOpts.onRetry(err); err2 != nil {
+				return err2
+			}
 		}
 		dur := strategy.Next(err)
 		if dur < 0 {

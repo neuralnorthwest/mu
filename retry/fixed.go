@@ -15,6 +15,6 @@
 package retry
 
 // Fixed returns a linear retry strategy with an increment of 0.
-func Fixed(opts ...Option) Strategy {
+func Fixed(opts ...StrategyOption) Strategy {
 	return Linear(append(opts, WithIncrement(0))...)
 }

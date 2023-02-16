@@ -39,7 +39,7 @@ var _ StrategyWithFactor = (*exponential)(nil)
 var _ StrategyWithMaxAttempts = (*exponential)(nil)
 
 // Exponential returns a retry strategy that uses exponential backoff.
-func Exponential(opts ...Option) Strategy {
+func Exponential(opts ...StrategyOption) Strategy {
 	e := &exponential{
 		baseInterval: 100 * time.Millisecond,
 		maxInterval:  10 * time.Second,

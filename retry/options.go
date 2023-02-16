@@ -21,8 +21,8 @@ import (
 	"github.com/neuralnorthwest/mu/bug"
 )
 
-// Option is an option for a Strategy.
-type Option func(Strategy)
+// StrategyOption is an option for a Strategy.
+type StrategyOption func(Strategy)
 
 // StrategyWithBaseInterval is a Strategy that supports a base duration.
 type StrategyWithBaseInterval interface {
@@ -59,7 +59,7 @@ type StrategyWithIncrement interface {
 // not set, the Strategy will use a default base interval. This option is
 // supported by the following Strategy types:
 //   - Exponential
-func WithBaseInterval(d time.Duration) Option {
+func WithBaseInterval(d time.Duration) StrategyOption {
 	return func(s Strategy) {
 		if sb, ok := s.(StrategyWithBaseInterval); ok {
 			sb.WithBaseInterval(d)
@@ -73,7 +73,7 @@ func WithBaseInterval(d time.Duration) Option {
 // not set, the Strategy may increase the interval indefinitely. This option is
 // supported by the following Strategy types:
 //   - Exponential
-func WithMaxInterval(d time.Duration) Option {
+func WithMaxInterval(d time.Duration) StrategyOption {
 	return func(s Strategy) {
 		if si, ok := s.(StrategyWithMaxInterval); ok {
 			si.WithMaxInterval(d)
@@ -87,7 +87,7 @@ func WithMaxInterval(d time.Duration) Option {
 // Strategy will use a default factor. This option is supported by the following
 // Strategy types:
 //   - Exponential
-func WithFactor(f float64) Option {
+func WithFactor(f float64) StrategyOption {
 	return func(s Strategy) {
 		if sf, ok := s.(StrategyWithFactor); ok {
 			sf.WithFactor(f)
@@ -101,7 +101,7 @@ func WithFactor(f float64) Option {
 // this option is not set, the Strategy will retry indefinitely. This option is
 // supported by the following Strategy types:
 //   - Exponential
-func WithMaxAttempts(n int) Option {
+func WithMaxAttempts(n int) StrategyOption {
 	return func(s Strategy) {
 		if sa, ok := s.(StrategyWithMaxAttempts); ok {
 			sa.WithMaxAttempts(n)
@@ -115,12 +115,53 @@ func WithMaxAttempts(n int) Option {
 // set, the Strategy will use a default increment. This option is supported by
 // the following Strategy types:
 //   - Linear
-func WithIncrement(d time.Duration) Option {
+func WithIncrement(d time.Duration) StrategyOption {
 	return func(s Strategy) {
 		if si, ok := s.(StrategyWithIncrement); ok {
 			si.WithIncrement(d)
 		} else {
 			bug.Bug(fmt.Sprintf("Strategy %T does not support WithIncrement", s))
 		}
+	}
+}
+
+// doOptions is the set of options for Do.
+type doOptions struct {
+	// onRetryAttempt is a function to call before each retry attempt. If
+	// onRetryAttempt returns an error, the retry will be aborted and the error
+	// will be returned. attempt is the number of the retry attempt, starting
+	// with 1. err is the error returned by the previous attempt.
+	onRetryAttempt func(attempt int, err error) error
+	// onRetry is a function to call after each retry attempt. If onRetry
+	// returns an error, the retry will be aborted and the error will be
+	// returned. err is the error returned by the previous attempt.
+	onRetry func(err error) error
+}
+
+// DoOption is an option for Do.
+type DoOption func(*doOptions)
+
+// OnRetryAttempt sets a function to call before each retry attempt. If
+// onRetryAttempt returns an error, the retry will be aborted and the error
+// will be returned. attempt is the number of the retry attempt, starting with
+// 1. err is the error returned by the previous attempt. If this option is
+// given multiple times, only the last one will be used. If this option is used
+// together with OnRetry, OnRetryAttempt will be called first.
+func OnRetryAttempt(f func(attempt int, err error) error) DoOption {
+	return func(o *doOptions) {
+		o.onRetryAttempt = f
+	}
+}
+
+// OnRetry sets a function to call after each retry attempt. If onRetry
+// returns an error, the retry will be aborted and the error will be returned.
+// err is the error returned by the previous attempt. If this option is given
+// multiple times, only the last one will be used. If this option is used
+// together with OnRetryAttempt, OnRetryAttempt will be called first.
+//
+// This option is useful for identifying non-retryable errors.
+func OnRetry(f func(err error) error) DoOption {
+	return func(o *doOptions) {
+		o.onRetry = f
 	}
 }
