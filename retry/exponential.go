@@ -51,19 +51,15 @@ func Exponential(opts ...StrategyOption) Strategy {
 	}
 	// Validate. If any of these are invalid, we'll report a bug and return
 	// a default strategy.
-	if e.baseInterval < 0 {
-		bug.Bug("baseInterval must be >= 0")
-		return Exponential()
-	}
-	if e.maxInterval < 0 {
-		bug.Bug("maxInterval must be >= 0")
+	if e.baseInterval <= 0 {
+		bug.Bug("baseInterval must be > 0")
 		return Exponential()
 	}
 	if e.factor < 1 {
 		bug.Bug("factor must be >= 1")
 		return Exponential()
 	}
-	if e.maxInterval < e.baseInterval {
+	if e.maxInterval >= 0 && e.maxInterval < e.baseInterval {
 		bug.Bug("maxInterval must be >= baseInterval")
 		return Exponential()
 	}
@@ -79,7 +75,7 @@ func (e *exponential) Next(err error) time.Duration {
 	}
 	dur := e.baseInterval
 	e.baseInterval = time.Duration(float64(e.baseInterval) * e.factor)
-	if e.baseInterval > e.maxInterval {
+	if e.maxInterval >= 0 && e.baseInterval > e.maxInterval {
 		e.baseInterval = e.maxInterval
 	}
 	return dur

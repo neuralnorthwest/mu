@@ -54,6 +54,19 @@ func Test_WithMaxInterval_NotSupported(t *testing.T) {
 	WithMaxInterval(100 * time.Millisecond)(s)
 }
 
+// Test_WithNoMaxInterval_NotSupported tests that WithNoMaxInterval bugs when
+// called on a strategy that doesn't support it.
+func Test_WithNoMaxInterval_NotSupported(t *testing.T) {
+	t.Parallel()
+	defer func() {
+		if r := recover(); r == nil {
+			t.Error("expected panic")
+		}
+	}()
+	s := &noOptionsStrategy{}
+	WithNoMaxInterval()(s)
+}
+
 // Test_WithIncrement_NotSupported tests that WithIncrement bugs when called
 // on a strategy that doesn't support it.
 func Test_WithIncrement_NotSupported(t *testing.T) {

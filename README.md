@@ -80,6 +80,22 @@ func main() {
     before the microservice exits. Mu automatically handles SIGTERM and SIGINT
     correctly, and will wait for all workers to finish before exiting.
 
+## Package documentation
+
+The following packages have their own `README.md` documentation:
+
+* [config](config/README.md)
+* [retry](retry/README.md)
+* [service](service/README.md)
+* [worker](worker/README.md)
+
+The sample microservices in the [samples](samples) directory also provide
+examples of how to use Mu.
+
+* [samples/complete](samples/complete/README.md)
+
+
+
 ## Developer quick start
 
 If you want work on Mu, you can use the following commands to get started:

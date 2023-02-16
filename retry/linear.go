@@ -55,15 +55,11 @@ func Linear(opts ...StrategyOption) Strategy {
 		bug.Bug("baseInterval must be >= 0")
 		return Linear()
 	}
-	if l.maxInterval < 0 {
-		bug.Bug("maxInterval must be >= 0")
-		return Linear()
-	}
 	if l.increment < 0 {
 		bug.Bug("increment must be >= 0")
 		return Linear()
 	}
-	if l.maxInterval < l.baseInterval {
+	if l.maxInterval >= 0 && l.maxInterval < l.baseInterval {
 		bug.Bug("maxInterval must be >= baseInterval")
 		return Linear()
 	}
@@ -79,7 +75,7 @@ func (l *linear) Next(err error) time.Duration {
 	}
 	dur := l.baseInterval
 	l.baseInterval += l.increment
-	if l.baseInterval > l.maxInterval {
+	if l.maxInterval >= 0 && l.baseInterval > l.maxInterval {
 		l.baseInterval = l.maxInterval
 	}
 	return dur

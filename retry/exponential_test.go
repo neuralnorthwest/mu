@@ -91,6 +91,26 @@ func Test_Exponential_WithMaxInterval(t *testing.T) {
 	testStrategy(t, s, expectedDurations, 10)
 }
 
+// Test_Exponential_NoMaxInterval tests the exponential retry strategy with
+// no max interval.
+func Test_Exponential_NoMaxInterval(t *testing.T) {
+	t.Parallel()
+	s := Exponential(WithNoMaxInterval())
+	expectedDurations := []time.Duration{
+		100 * time.Millisecond,
+		200 * time.Millisecond,
+		400 * time.Millisecond,
+		800 * time.Millisecond,
+		1600 * time.Millisecond,
+		3200 * time.Millisecond,
+		6400 * time.Millisecond,
+		12800 * time.Millisecond,
+		25600 * time.Millisecond,
+		51200 * time.Millisecond,
+	}
+	testStrategy(t, s, expectedDurations, 10)
+}
+
 // Test_Exponential_WithFactor tests the exponential retry strategy with a
 // custom factor.
 func Test_Exponential_WithFactor(t *testing.T) {
@@ -141,18 +161,6 @@ func Test_Exponential_WithInvalidBaseInterval(t *testing.T) {
 		}
 	}()
 	Exponential(WithBaseInterval(-1 * time.Millisecond))
-}
-
-// Test_Exponential_WithInvalidMaxInterval tests the exponential retry
-// strategy with an invalid max interval.
-func Test_Exponential_WithInvalidMaxInterval(t *testing.T) {
-	t.Parallel()
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("expected panic")
-		}
-	}()
-	Exponential(WithMaxInterval(-1 * time.Millisecond))
 }
 
 // Test_Exponential_WithInvalidFactor tests the exponential retry strategy

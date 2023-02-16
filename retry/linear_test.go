@@ -78,6 +78,26 @@ func Test_Linear_WithMaxInterval(t *testing.T) {
 	testStrategy(t, s, expectedDurations, 10)
 }
 
+// Test_Linear_NoMaxInterval tests the linear retry strategy with no max
+// interval.
+func Test_Linear_NoMaxInterval(t *testing.T) {
+	t.Parallel()
+	s := Linear(WithNoMaxInterval(), WithIncrement(5*time.Second), WithBaseInterval(1*time.Second))
+	expectedDurations := []time.Duration{
+		1 * time.Second,
+		6 * time.Second,
+		11 * time.Second,
+		16 * time.Second,
+		21 * time.Second,
+		26 * time.Second,
+		31 * time.Second,
+		36 * time.Second,
+		41 * time.Second,
+		46 * time.Second,
+	}
+	testStrategy(t, s, expectedDurations, 10)
+}
+
 // Test_Linear_WithIncrement tests the linear retry strategy with a custom
 // increment.
 func Test_Linear_WithIncrement(t *testing.T) {
@@ -128,18 +148,6 @@ func Test_Linear_WithInvalidBaseInterval(t *testing.T) {
 		}
 	}()
 	Linear(WithBaseInterval(-1 * time.Millisecond))
-}
-
-// Test_Linear_WithInvalidMaxInterval tests the linear retry strategy with an
-// invalid max interval.
-func Test_Linear_WithInvalidMaxInterval(t *testing.T) {
-	t.Parallel()
-	defer func() {
-		if r := recover(); r == nil {
-			t.Error("expected panic")
-		}
-	}()
-	Linear(WithMaxInterval(-1 * time.Millisecond))
 }
 
 // Test_Linear_WithInvalidIncrement tests the linear retry strategy with an

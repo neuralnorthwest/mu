@@ -59,6 +59,8 @@ type StrategyWithIncrement interface {
 // not set, the Strategy will use a default base interval. This option is
 // supported by the following Strategy types:
 //   - Exponential
+//   - Fixed
+//   - Linear
 func WithBaseInterval(d time.Duration) StrategyOption {
 	return func(s Strategy) {
 		if sb, ok := s.(StrategyWithBaseInterval); ok {
@@ -73,12 +75,27 @@ func WithBaseInterval(d time.Duration) StrategyOption {
 // not set, the Strategy may increase the interval indefinitely. This option is
 // supported by the following Strategy types:
 //   - Exponential
+//   - Linear
 func WithMaxInterval(d time.Duration) StrategyOption {
 	return func(s Strategy) {
 		if si, ok := s.(StrategyWithMaxInterval); ok {
 			si.WithMaxInterval(d)
 		} else {
 			bug.Bug(fmt.Sprintf("Strategy %T does not support WithMaxInterval", s))
+		}
+	}
+}
+
+// WithNoMaxInterval sets the maximum interval for the Strategy to unlimited.
+// This option is supported by the following Strategy types:
+//   - Exponential
+//   - Linear
+func WithNoMaxInterval() StrategyOption {
+	return func(s Strategy) {
+		if si, ok := s.(StrategyWithMaxInterval); ok {
+			si.WithMaxInterval(-1)
+		} else {
+			bug.Bug(fmt.Sprintf("Strategy %T does not support WithNoMaxInterval", s))
 		}
 	}
 }
@@ -101,6 +118,8 @@ func WithFactor(f float64) StrategyOption {
 // this option is not set, the Strategy will retry indefinitely. This option is
 // supported by the following Strategy types:
 //   - Exponential
+//   - Fixed
+//   - Linear
 func WithMaxAttempts(n int) StrategyOption {
 	return func(s Strategy) {
 		if sa, ok := s.(StrategyWithMaxAttempts); ok {
@@ -114,6 +133,7 @@ func WithMaxAttempts(n int) StrategyOption {
 // WithIncrement sets the increment for the Strategy. If this option is not
 // set, the Strategy will use a default increment. This option is supported by
 // the following Strategy types:
+//   - Fixed
 //   - Linear
 func WithIncrement(d time.Duration) StrategyOption {
 	return func(s Strategy) {
