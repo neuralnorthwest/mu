@@ -1,7 +1,5 @@
 ## v0.1.16
 
-TODO
-
 ### Added
 
 * `complete` sample added.
