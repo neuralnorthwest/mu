@@ -89,6 +89,10 @@ func Test_Server(t *testing.T) {
 	}
 	srv, cancel := createTestServer(t, logger, listener, srvErr)
 	defer cancel()
+	// Check the address of the server.
+	if Address(srv) != listener.Addr().String() {
+		t.Fatalf("expected address %s, got %s", listener.Addr().String(), Address(srv))
+	}
 	srv.HandleFunc("/test", func(w ht.ResponseWriter, r *ht.Request) {
 		srv.Logger().Debugw("handling request", "path", r.URL.Path)
 		w.WriteHeader(ht.StatusOK)

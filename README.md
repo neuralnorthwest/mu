@@ -1,11 +1,12 @@
  # Mu
 
+![Go Report Card](https://goreportcard.com/badge/github.com/neuralnorthwest/mu)
 ![GitHub](https://img.shields.io/github/license/neuralnorthwest/mu?style=plastic)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/neuralnorthwest/mu?style=plastic)
 ![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/neuralnorthwest/mu/cicd.yaml?branch=develop&style=plastic)
 ![GitHub search hit counter](https://img.shields.io/github/search/neuralnorthwest/mu/goto?style=plastic)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/neuralnorthwest/mu?style=plastic)
-![Lines of code](https://img.shields.io/badge/lines%20of%20code-8k-blue?style=plastic)
+![Lines of code](https://img.shields.io/badge/lines%20of%20code-11k-blue?style=plastic)
 ![Status](https://img.shields.io/badge/status-in%20development-orange?style=plastic)
 
 Mu is a microservice framework written in Go. Built on ideas and learnings from
@@ -78,6 +79,22 @@ func main() {
     perform any cleanup tasks you need, such as closing database connections,
     before the microservice exits. Mu automatically handles SIGTERM and SIGINT
     correctly, and will wait for all workers to finish before exiting.
+
+## Package documentation
+
+The following packages have their own `README.md` documentation:
+
+* [config](config/README.md)
+* [retry](retry/README.md)
+* [service](service/README.md)
+* [worker](worker/README.md)
+
+The sample microservices in the [samples](samples) directory also provide
+examples of how to use Mu.
+
+* [samples/complete](samples/complete/README.md)
+
+
 
 ## Developer quick start
 

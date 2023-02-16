@@ -46,3 +46,9 @@ var ErrNotStarted = Error("not started")
 
 // ErrNotImplemented is returned when a method is not implemented.
 var ErrNotImplemented = Error("not implemented")
+
+// ErrServerError is returned when a server error occurs.
+var ErrServerError = Error("server error")
+
+// ErrClientError is returned when a client error occurs.
+var ErrClientError = Error("client error")

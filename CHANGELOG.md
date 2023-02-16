@@ -1,3 +1,39 @@
+## v0.1.16
+
+### Added
+
+* `complete` sample added.
+* `grpc` package added with `grpc.Server`.
+* `retry` package added.
+* Protobuf support:
+  * `setup-dev` target installs `buf`.
+  * `make generate-proto` generates all proto files.
+  * `make lint-proto` lints all proto files.
+* `http.Server` adds new method `Address` to get the address the server is
+  listening on.
+* `status` updates:
+  * New errors `ErrServerError` and `ErrClientError`.
+  * `HTTPError` function to map a response status code and error to a Go
+    error.
+* Other enhancements:
+  * `make roll-version` updates the version number in `version.go` and adds
+    a new entry to the changelog.
+* Main `README.md` is enhanced with links to package documentation.
+
+### Changed
+
+* `metrics.MetricsOptions` field `Server` is now a function instead of a
+  `*http.Server`.
+* `SetupHTTP` hook now accepts `opts ...http.ServerOption` to configure the
+  server.
+
+### Fixed
+
+* `config.NewBool`, `config.NewInt`, and `config.NewString` now properly check
+  for conflicting variables of other types, not just their own type.
+
+### Security
+
 ## v0.1.15
 
 * Bug fix:

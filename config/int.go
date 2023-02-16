@@ -83,6 +83,12 @@ func (c *configImpl) NewInt(name string, defaultValue int, description string, o
 	if _, ok := c.ints[name]; ok {
 		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
 	}
+	if _, ok := c.strings[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
+	if _, ok := c.bools[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
 	i := &Int{
 		name:         name,
 		defaultValue: defaultValue,

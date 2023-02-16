@@ -19,7 +19,7 @@
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
-NO_LIC_FILES=$(grep --exclude-dir=.git --exclude-dir=venv --exclude-dir=docs -HLr 'Licensed under the Apache License' . | sort)
+NO_LIC_FILES=$(grep --exclude-dir=.git --exclude-dir=venv --exclude-dir=gen --exclude-dir=mock --exclude-dir=docs -HLr 'Licensed under the Apache License' . | sort)
 IGNORE_FILES=$(cat .licenseignore | sort)
 if [ "$NO_LIC_FILES" != "$IGNORE_FILES" ]; then
     echo "The following files are missing license headers and are not in .licenseignore:" >&2

@@ -49,7 +49,13 @@ func WithStringValidator(f func(string) error) StringOption {
 
 // NewString creates a new string variable.
 func (c *configImpl) NewString(name string, defaultValue string, description string, options ...StringOption) error {
+	if _, ok := c.ints[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
 	if _, ok := c.strings[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
+	if _, ok := c.bools[name]; ok {
 		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
 	}
 	s := &String{

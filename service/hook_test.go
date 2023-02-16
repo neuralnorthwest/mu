@@ -94,7 +94,7 @@ func Test_hooks_InvokeSetupHTTP(t *testing.T) {
 	h.SetupHTTP(func(server *http.Server) error {
 		wasInvoked = true
 		return nil
-	})
+	}, http.WithAddress(":8181"))
 	var httpServer *http.Server
 	var err error
 	if httpServer, err = h.invokeSetupHTTP(); err != nil {
@@ -102,6 +102,9 @@ func Test_hooks_InvokeSetupHTTP(t *testing.T) {
 	}
 	if !wasInvoked {
 		t.Error("expected setup HTTP hook to be invoked")
+	}
+	if http.Address(httpServer) != ":8181" {
+		t.Errorf("expected address to be :8181, got %s", http.Address(httpServer))
 	}
 	if httpServer == nil {
 		t.Error("expected http server to be returned")
@@ -113,10 +116,10 @@ func Test_hooks_InvokeSetupHTTP(t *testing.T) {
 func Test_hooks_InvokeSetupHTTP_NewServerError(t *testing.T) {
 	t.Parallel()
 	h := &hookstruct{}
-	h.httpNewServer = func() (*http.Server, error) {
+	h.httpNewServer = func(opts ...http.ServerOption) (*http.Server, error) {
 		return nil, status.ErrInvalidArgument
 	}
-	h.SetupHTTP(func(server *http.Server) error {
+	h.SetupHTTP(func(*http.Server) error {
 		return nil
 	})
 	if _, err := h.invokeSetupHTTP(); err == nil {
@@ -129,7 +132,7 @@ func Test_hooks_InvokeSetupHTTP_NewServerError(t *testing.T) {
 func Test_hooks_InvokeSetupHTTP_HookError(t *testing.T) {
 	t.Parallel()
 	h := &hookstruct{}
-	h.SetupHTTP(func(server *http.Server) error {
+	h.SetupHTTP(func(*http.Server) error {
 		return status.ErrInvalidArgument
 	})
 	if _, err := h.invokeSetupHTTP(); err == nil {

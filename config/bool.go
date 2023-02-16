@@ -36,6 +36,12 @@ type Bool struct {
 
 // NewBool creates a new bool variable.
 func (c *configImpl) NewBool(name string, defaultValue bool, description string) error {
+	if _, ok := c.ints[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
+	if _, ok := c.strings[name]; ok {
+		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
+	}
 	if _, ok := c.bools[name]; ok {
 		return fmt.Errorf("%w: %s", status.ErrAlreadyExists, name)
 	}

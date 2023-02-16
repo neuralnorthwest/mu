@@ -36,7 +36,7 @@ type Hooks interface {
 	PreRun(f PreRunFunc)
 	SetupConfig(f SetupConfigFunc)
 	SetupWorkers(f SetupWorkersFunc)
-	SetupHTTP(f SetupHTTPFunc)
+	SetupHTTP(f SetupHTTPFunc, opts ...http.ServerOption)
 
 	invokePreRun() error
 	invokeSetupConfig(c config.Config) error
@@ -54,9 +54,11 @@ type hookstruct struct {
 	setupWorkers SetupWorkersFunc
 	// setupHTTP is the setup HTTP hook.
 	setupHTTP SetupHTTPFunc
+	// setupHTTPOpts are the options for the setup HTTP hook.
+	setupHTTPOpts []http.ServerOption
 	// httpNewServer is a function that creates a new HTTP server. This is used
 	// for testing.
-	httpNewServer func() (*http.Server, error)
+	httpNewServer func(opts ...http.ServerOption) (*http.Server, error)
 }
 
 var _ Hooks = (*hookstruct)(nil)
@@ -77,8 +79,9 @@ func (h *hookstruct) SetupWorkers(f SetupWorkersFunc) {
 }
 
 // SetupHTTP registers a setup HTTP hook.
-func (h *hookstruct) SetupHTTP(f SetupHTTPFunc) {
+func (h *hookstruct) SetupHTTP(f SetupHTTPFunc, opts ...http.ServerOption) {
 	h.setupHTTP = f
+	h.setupHTTPOpts = opts
 }
 
 // invokeSetupConfig invokes the setup configuration hook.
@@ -111,9 +114,9 @@ func (h *hookstruct) invokeSetupHTTP() (*http.Server, error) {
 		var server *http.Server
 		var err error
 		if h.httpNewServer == nil {
-			server, err = http.NewServer()
+			server, err = http.NewServer(h.setupHTTPOpts...)
 		} else {
-			server, err = h.httpNewServer()
+			server, err = h.httpNewServer(h.setupHTTPOpts...)
 		}
 		if err != nil {
 			return nil, err

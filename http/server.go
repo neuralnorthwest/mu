@@ -88,6 +88,9 @@ func NewServer(opts ...ServerOption) (*Server, error) {
 			return nil, err
 		}
 	}
+	if s.listener != nil {
+		s.server.Addr = s.listener.Addr().String()
+	}
 	return s, nil
 }
 
@@ -131,6 +134,11 @@ func (s *Server) Run(ctx context.Context, logger logging.Logger) error {
 	err = <-shutdown
 	s.logger.Debugw("HTTP server stopped")
 	return err
+}
+
+// Address returns the address the server is listening on.
+func Address(s *Server) string {
+	return s.server.Addr
 }
 
 // serve calls the appropriate Serve method on the underlying HTTP server.
