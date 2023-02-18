@@ -26,5 +26,4 @@ func (s *complete) bugHandler(msg string) {
 		s.Logger().Errorw("BUG", "message", msg, "stack", stack)
 		panic(msg)
 	}
-
 }
