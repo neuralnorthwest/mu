@@ -12,18 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package complete
+package trace
 
-import "runtime/debug"
+import "go.opentelemetry.io/otel/trace"
 
-// bugHandler is the complete service bug handler.
-func (s *complete) bugHandler(msg string) {
-	stack := string(debug.Stack())
-	s.Logger().Errorw("BUG", "message", msg, "stack", stack)
-	// If development mode is enabled, we also log the bug to the console
-	// and panic.
-	if s.config != nil && s.config.DevMode() {
-		s.Logger().Errorw("BUG", "message", msg, "stack", stack)
-		panic(msg)
-	}
+// Tracer is the interface for a tracer.
+type Tracer interface {
+	trace.Tracer
 }

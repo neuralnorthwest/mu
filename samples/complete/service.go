@@ -18,6 +18,7 @@ import (
 	"github.com/neuralnorthwest/mu/bug"
 	"github.com/neuralnorthwest/mu/http"
 	"github.com/neuralnorthwest/mu/service"
+	"github.com/neuralnorthwest/mu/trace"
 )
 
 // complete is the main struct of the complete service.
@@ -30,6 +31,8 @@ type complete struct {
 	diagnosticsServer *http.Server
 	// config is the service configuration wrapper.
 	config *Config
+	// tracer is the tracer for the service.
+	tracer trace.Tracer
 }
 
 // New creates a new complete service.
@@ -49,6 +52,10 @@ func New(name string) (*complete, error) {
 	// Configure a bug handler that will send bug reports to the service
 	// logger. See bug_handler.go.
 	bug.SetHandler(s.bugHandler)
+	// Next, we initialize OTLP tracing. See trace.go.
+	if err := s.setupTracing(); err != nil {
+		return nil, err
+	}
 	// Next, we initialize the metrics for the service. See metrics.go.
 	if err := s.setupMetrics(); err != nil {
 		return nil, err

@@ -14,16 +14,17 @@
 
 package complete
 
-import "runtime/debug"
+import "github.com/neuralnorthwest/mu/trace"
 
-// bugHandler is the complete service bug handler.
-func (s *complete) bugHandler(msg string) {
-	stack := string(debug.Stack())
-	s.Logger().Errorw("BUG", "message", msg, "stack", stack)
-	// If development mode is enabled, we also log the bug to the console
-	// and panic.
-	if s.config != nil && s.config.DevMode() {
-		s.Logger().Errorw("BUG", "message", msg, "stack", stack)
-		panic(msg)
+// setupTracing initializes OTLP tracing.
+func (s *complete) setupTracing() error {
+	// Create a tracer for the service.
+	tracer, cleanup, err := trace.OpenTelemetryTracing(s.Context(), s.Name(), s.Version())
+	if err != nil {
+		return err
 	}
+	s.tracer = tracer
+	// Clean up the tracer when the service is stopped.
+	s.Cleanup(cleanup)
+	return nil
 }
