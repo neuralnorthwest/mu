@@ -32,6 +32,17 @@ on:
       - main
 
 jobs:
+  generate:
+    name: Generate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: neuralnorthwest/actions/generate-go@main
+      - uses: neuralnorthwest/actions/generate-proto@main
+      - run: |
+          scripts/update-wc.sh
+      - run: |
+          git diff --quiet || (echo "ERROR: Generated files are not up to date" && exit 1)
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -85,6 +96,7 @@ jobs:
     name: Release
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
+      - generate
       - test
       - lint
       - check-license
