@@ -57,7 +57,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/prometheus/client_golang v1.14.0
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.39.0
 	go.opentelemetry.io/otel/exporters/stdout/stdouttrace v1.13.0
 	go.uber.org/atomic v1.10.0 // indirect
