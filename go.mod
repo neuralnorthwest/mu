@@ -16,7 +16,7 @@ module github.com/neuralnorthwest/mu
 
 go 1.19
 
-require golang.org/x/mod v0.8.0
+require golang.org/x/mod v0.10.0
 
 require (
 	github.com/golang/mock v1.6.0
